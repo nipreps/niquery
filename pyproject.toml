@@ -1,0 +1,196 @@
+[build-system]
+requires = ["hatchling", "hatch-vcs", "nipreps-versions"]
+build-backend = "hatchling.build"
+
+[project]
+name = "niquery"
+description = "OpenNeuro dataset query and characterization tool"
+readme = "README.rst"
+authors = [{name = "The NiPreps Developers", email = "nipreps@gmail.com"}]
+maintainers = [{name = "The NiPreps Developers", email = "nipreps@gmail.com"}]
+keywords = ["neuroimaging", "OpenNeuro", "BIDS", "web querying", "data sharing"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Science/Research",
+  "Topic :: Scientific/Engineering :: Image Recognition",
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python",
+]
+license = "Apache-2.0"
+license-files = ["LICEN[CS]E.*"]
+requires-python = ">=3.10"
+dependencies = [
+  "boto3",
+  "botocore",
+  "click",
+  "datalad",
+  "nibabel",
+  "pandas",
+  "requests",
+  "tqdm",
+]
+dynamic = ["version"]
+
+[project.urls]
+Documentation = "https://www.nipreps.org/niquery"
+Repository = "https://github.com/nipreps/niquery.git"
+NiPreps = "https://www.nipreps.org/"
+
+[project.optional-dependencies]
+doc = [
+  "attrs>=20.1.0",
+  "furo>=2024.01.29",
+  "nbsphinx",
+  "packaging",
+  "pydot>=1.2.3",
+  "pydotplus",
+  "sphinx>=4.5,<8",
+  "sphinx-argparse",
+  "sphinx_rtd_theme",
+  "sphinxcontrib-apidoc",
+  "sphinxcontrib-napoleon",
+  "sphinxcontrib-versioning",
+  "sphinx-argparse",
+  "sphinxcontrib-bibtex",
+]
+dev = [
+  "ruff",
+  "pre-commit",
+  "pre-commit-hooks",
+]
+test = [
+  "coverage",
+  "pytest>=4.4",
+  "pytest-cov",
+  "pytest-env",
+  "pytest-xdist>=1.28"
+]
+types = [
+  "pandas-stubs",
+  "types-setuptools",
+  "types-attrs",
+  "types-tqdm",
+  "pytest",
+]
+
+# Aliases
+docs = ["niquery[doc]"]
+tests = ["niquery[test]"]
+all = ["niquery[dev,doc,test,types]"]
+
+[project.scripts]
+niquery = "niquery.cli.run:cli"
+
+#
+# Hatch configurations
+#
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/niquery"]
+# exclude = [
+#   "niquery/tests/data",  # Large test data directory
+# ]
+
+[tool.hatch.version]
+validate-bump = true
+source = "vcs"
+
+[tool.hatch.version.raw-options]
+version_scheme = "nipreps-calver"
+local_scheme = "no-local-version"
+
+[tool.hatch.build.hooks.vcs]
+version-file = "src/niquery/_version.py"
+
+#
+# Developer tool configurations
+#
+
+[[tool.mypy.overrides]]
+module = [
+  "joblib",
+]
+ignore_missing_imports = true
+
+[tool.ruff]
+line-length = 99
+target-version = "py310"
+exclude = [
+  ".eggs",
+  ".git",
+  ".hg",
+  ".mypy_cache",
+  ".tox",
+  ".venv",
+  "venv",
+  "_build",
+  "build",
+  "dist",
+]
+
+[tool.ruff.lint]
+select = [
+  "F",
+  "E",
+  "C",
+  "W",
+  "B",
+  "I",
+  "ICN",
+]
+ignore = [
+  "E203"
+]
+
+[tool.ruff.lint.flake8-quotes]
+inline-quotes = "double"
+
+[tool.ruff.lint.extend-per-file-ignores]
+"*/__init__.py" = ["F401"]
+".maint/update_authors.py" = ["C901"]
+"docs/conf.py" = ["E265", "E402"]
+"/^\\s*\\.\\. _.*?: http/" = ["E501"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.ruff.lint.flake8-import-conventions.extend-aliases]
+"nibabel" = "nb"
+
+[tool.ruff.lint.isort]
+known-first-party=["niquery"]
+
+[tool.pytest.ini_options]
+pythonpath = "src/ test/"
+norecursedirs = [".*", "_*"]
+addopts = "-v --doctest-modules"
+doctest_optionflags = "ALLOW_UNICODE NORMALIZE_WHITESPACE ELLIPSIS"
+env = "PYTHONHASHSEED=0"
+
+[tool.coverage.run]
+branch = true
+parallel = true
+concurrency = ["multiprocessing"]
+omit = [
+  "*/tests/*",
+  "*/testing/*",
+  "*/__init__.py",
+  "*/conftest.py",
+  "src/niquery/_version.py"
+]
+
+[tool.coverage.report]
+# Regexes for lines to exclude from consideration
+exclude_lines = [
+  "raise NotImplementedError",
+  "warnings\\.warn",
+]
+
+[tool.codespell]
+# word - explanation
+ignore-words-list = " "
+skip = """
+./.git,*.svg,*.min.js"""
