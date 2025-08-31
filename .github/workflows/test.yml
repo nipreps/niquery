@@ -1,0 +1,143 @@
+name: Unit and integration tests
+
+on:
+  push:
+    branches:
+      - main
+      - maint/*
+  pull_request:
+    branches:
+      - main
+      - maint/*
+  # Allow job to be triggered manually from GitHub interface
+  workflow_dispatch:
+  schedule:
+    - cron: '0 22 * * 0' # At 22:00 UTC every Sunday
+
+defaults:
+  run:
+    shell: bash
+
+# Force tox and pytest to use color
+env:
+  FORCE_COLOR: true
+  TEST_DATA_HOME: /home/runner/niquery-tests/
+  NIQUERY_WERRORS: 1
+  TEST_DATA_REPO: https://gin.g-node.org/nipreps-data/tests-niquery
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  cache-test-data:
+    runs-on: 'ubuntu-latest'
+    outputs:
+      SHA: ${{ steps.test-head.outputs.SHA }}
+    steps:
+      - name: Check remote HEAD
+        id: test-head
+        run: |
+          SHA=$( git ls-remote $TEST_DATA_REPO HEAD | cut -f 1 )
+          echo SHA=$SHA >> $GITHUB_OUTPUT
+          echo SHA7=${SHA:0:7} >> $GITHUB_OUTPUT
+      - name: Check for data-v2-${{ steps.test-head.outputs.SHA }}
+        uses: actions/cache@v4
+        id: test-data
+        with:
+          path: ${{ env.TEST_DATA_HOME }}
+          key: data-v2-${{ steps.test-head.outputs.SHA }}
+          lookup-only: true
+      - name: Create data-v2-${{ steps.test-head.outputs.SHA }}
+        uses: actions/cache@v4
+        if: steps.test-data.outputs.cache-hit != 'true'
+        with:
+          path: ${{ env.TEST_DATA_HOME }}
+          key: data-v2-${{ steps.test-head.outputs.SHA }}
+          restore-keys: |
+            data-v2
+            data-v1
+            data-v0
+      - name: Install the latest version of uv
+        uses: astral-sh/setup-uv@v5
+        if: steps.test-data.outputs.cache-hit != 'true'
+      - name: Install datalad
+        if: steps.test-data.outputs.cache-hit != 'true'
+        run: |
+          uvx datalad-installer --sudo ok git-annex
+          uv tool install --with=datalad-osf --with=datalad-next datalad
+          uv tool install --with=datalad-next datalad-osf
+          datalad wtf
+      - name: Checkout commit ${{ steps.test-head.outputs.SHA7 }}
+        if: steps.test-data.outputs.cache-hit != 'true'
+        run: |
+          if [[ ! -d "${TEST_DATA_HOME}" ]]; then
+            datalad install -rg --source=${TEST_DATA_REPO} ${TEST_DATA_HOME}
+          else
+            cd ${TEST_DATA_HOME}
+            datalad update --merge -r .
+            datalad get -r -J4 *
+          fi
+
+  stable:
+    # Unit tests only on Linux/Python 3.12
+    runs-on: 'ubuntu-latest'
+    needs: ['cache-test-data']
+    strategy:
+      matrix:
+        python-version: ${{ github.event_name == 'schedule' && fromJson('["3.10", "3.11", "3.12", "3.13"]') || fromJson('["3.12"]') }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install the latest version of uv
+        uses: astral-sh/setup-uv@v5
+      - uses: actions/cache/restore@v4
+        with:
+          path: ${{ env.TEST_DATA_HOME }}
+          key: data-v2-${{ needs.cache-test-data.outputs.SHA }}
+      - name: Install tox
+        run: |
+          uv tool install --with=tox-uv --with=tox-gh-actions tox
+      - name: Show tox config
+        run: tox c
+      - name: Run tox
+        run: |
+          tox -v --exit-and-dump-after 1200
+      - uses: codecov/codecov-action@v4
+        if: ${{ always() }}
+        with:
+          files: cov.xml
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  checks:
+    runs-on: 'ubuntu-latest'
+    continue-on-error: true
+    strategy:
+      matrix:
+        check: ['spellcheck', 'typecheck']
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install the latest version of uv
+        uses: astral-sh/setup-uv@v4
+      # Can remove this once there is a traits release that supports 3.13
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.12
+      - name: Install tox
+        run: uv tool install tox --with=tox-uv
+      - name: Show tox config
+        run: tox c
+      - name: Show tox config (this call)
+        run: tox c -e ${{ matrix.check }}
+      - name: Run check
+        run: tox -e ${{ matrix.check }}
