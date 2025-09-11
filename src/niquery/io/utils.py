@@ -19,15 +19,15 @@ from pathlib import Path
 import pandas as pd
 
 
-def append_modality_to_filename(in_filename: Path, modality: str) -> Path:
-    """Compose a new path by appending the ``modality`` tag to the file rootname.
+def append_label_to_filename(in_filename: Path, label: str) -> Path:
+    """Compose a new path by appending the label tag to the file rootname.
 
     Parameters
     ----------
     in_filename : :obj:`Path`
         Filename.
-    modality : :obj:`str`
-        Modality tag.
+    label : :obj:`str`
+        Label tag.
 
     Parameters
     ----------
@@ -35,7 +35,7 @@ def append_modality_to_filename(in_filename: Path, modality: str) -> Path:
         Composed filename.
     """
 
-    return in_filename.with_name(in_filename.stem + f"_{modality}" + in_filename.suffix)
+    return in_filename.with_name(in_filename.stem + f"_{label}" + in_filename.suffix)
 
 
 def write_dataset_file_lists(file_dict: dict, dirname: Path, sep: str) -> None:

@@ -33,17 +33,17 @@ from pathlib import Path
 import click
 import pandas as pd
 
-from niquery.analysis.featuring import extract_bold_features
+from niquery.analysis.featuring import extract_volume_features
 from niquery.analysis.filtering import (
     filter_nonrelevant_datasets,
-    identify_bold_files,
+    identify_modality_files,
     identify_relevant_runs,
 )
 from niquery.cli.utils import force_output, verify_output_path
 from niquery.data.fetching import fetch_datalad_remote_files
 from niquery.data.utils import filter_non_conforming_ds
 from niquery.io.utils import (
-    append_modality_to_filename,
+    append_label_to_filename,
     write_dataset_file_lists,
     write_dataset_paths,
     write_dataset_tags,
@@ -126,20 +126,36 @@ def index(out_filename, force) -> None:
     type=click.Path(exists=True, dir_okay=False, path_type=Path),
 )
 @click.argument("out_dirname", type=click.Path(exists=True, file_okay=False, path_type=Path))
+@click.option(
+    "--species",
+    multiple=True,
+    required=True,
+    help="Species to consider",
+    type=str,
+)
+@click.option(
+    "--modality",
+    multiple=True,
+    required=True,
+    help="Modalities to consider",
+    type=str,
+)
 @force_output
-def collect(in_filename, out_dirname, force) -> None:
-    """Collect human (f)MRI datasets' file information from OpenNeuro using IDs
+def collect(in_filename, out_dirname, species, modality, force) -> None:
+    """Collect datasets' file information from OpenNeuro using IDs
     read from the input file.
 
-    Only those datasets having 'human' in the species field are kept. Any
-    dataset having one of {'bold', 'fmri', 'mri'} in the 'modality' field is
-    considered an fMRI dataset. For each queried dataset, the list of files is
-    stored in a TSV file, along with the 'id', 'filename', 'size', 'directory',
-    'annexed', 'key', 'urls', and 'fullpath' features.
+    For each queried dataset, the list of files is stored in a TSV file, along
+    with the 'id', 'filename', 'size', 'directory', 'annexed', 'key', 'urls',
+    and 'fullpath' features.
 
     IN_FILENAME path  Dataset list filename
 
     OUT_DIRNAME path  Output dirname
+
+    MODALITY    str   Modalities to consider
+
+    SPECIES     str   Species to consider
     """
 
     verify_output_path(out_dirname, force)
@@ -166,13 +182,15 @@ def collect(in_filename, out_dirname, force) -> None:
     logging.info(f"Filtering {len(_df)} datasets...")
 
     # Filter nonrelevant datasets
-    df = filter_nonrelevant_datasets(_df)
+    df = filter_nonrelevant_datasets(_df, species, modality)
 
-    logging.info(f"Filtered {len(_df) - len(df)}/{len(_df)} non-human, non-MRI datasets.")
+    logging.info(
+        f"Filtered {len(_df) - len(df)}/{len(_df)} non-{species}, non-{modality} datasets."
+    )
 
-    fname = append_modality_to_filename(in_filename, "mri")
-    mri_datasets_fname = Path.joinpath(out_dirname, fname)
-    df.to_csv(mri_datasets_fname, sep=sep, index=False)
+    fname = append_label_to_filename(in_filename, "relevant")
+    datasets_fname = Path.joinpath(out_dirname, fname)
+    df.to_csv(datasets_fname, sep=sep, index=False)
 
     success_results, failure_results = query_datasets(df, max_workers=MAX_WORKERS)
 
@@ -184,8 +202,8 @@ def collect(in_filename, out_dirname, force) -> None:
     failure_count = len(failure_results)
     total_count = success_count + failure_count
 
-    success_ratio = success_count / total_count * 100
-    failure_ratio = failure_count / total_count * 100
+    success_ratio = success_count / total_count * 100 if total_count else 0
+    failure_ratio = failure_count / total_count * 100 if total_count else 0
 
     logging.info(f"Collected {total_count} datasets in {duration:.2f} seconds.")
     logging.info(f"{success_count}/{total_count} queries succeeded ({success_ratio:.2f}%).")
@@ -200,17 +218,26 @@ def collect(in_filename, out_dirname, force) -> None:
 @cli.command()
 @click.argument("in_dirname", type=click.Path(exists=True, file_okay=False, path_type=Path))
 @click.argument("out_dirname", type=click.Path(exists=True, file_okay=False, path_type=Path))
+@click.option(
+    "--suffix",
+    multiple=True,
+    required=True,
+    help="Modality suffixes to consider",
+    type=str,
+)
 @force_output
-def analyze(in_dirname, out_dirname, force) -> None:
-    """Analyze BOLD runs in datasets to extract relevant features.
+def analyze(in_dirname, out_dirname, suffix, force) -> None:
+    """Analyze modality-specific files in datasets to extract relevant features.
 
-    Analyzes the BOLD data files contained in the records of each dataset in the
-    input directory. The features computed include the number of volumes (time
-    points) of each BOLD run.
+    Analyzes the modality-specific data files contained in the records of each
+    dataset in the input directory. The ``suffix`` indicates what files will be
+    analyzed. The features computed include the number of volumes of each file.
 
     IN_DIRNAME path   Input dirname
 
     OUT_DIRNAME path  Output dirname
+
+    SUFFIX      str   Modality suffix to consider
     """
 
     verify_output_path(out_dirname, force)
@@ -232,36 +259,36 @@ def analyze(in_dirname, out_dirname, force) -> None:
     ds_count = len(datasets)
     logging.info(f"Characterizing {ds_count} datasets...")
 
-    bold_files = identify_bold_files(datasets, sep, max_workers=MAX_WORKERS)
+    files = identify_modality_files(datasets, sep, suffix, max_workers=MAX_WORKERS)
 
-    run_count = sum(len(item) for item in bold_files.values())
-    logging.info(f"Found {run_count} BOLD runs.")
+    file_count = sum(len(item) for item in files.values())
+    logging.info(f"Found {file_count} relevant files.")
 
-    success_results, failure_results = extract_bold_features(bold_files)
+    success_results, failure_results = extract_volume_features(files)
 
     end = time.time()
     duration = end - start
 
     # Compute success/failure ratios
     success_ds = len(success_results)
-    failure_ds = len([item[DATASETID] for item in failure_results])
+    failure_ds = len({item[DATASETID] for item in failure_results})
 
-    success_runs = sum(len(v) for v in success_results.values())
-    failure_runs = len(failure_results)
+    success_files = sum(len(v) for v in success_results.values())
+    failure_files = len(failure_results)
 
-    success_ds_ratio = success_ds / ds_count * 100
-    failure_ds_ratio = failure_ds / ds_count * 100
+    success_ds_ratio = success_ds / ds_count * 100 if ds_count else 0
+    failure_ds_ratio = failure_ds / ds_count * 100 if ds_count else 0
 
-    success_run_ratio = success_runs / run_count * 100
-    failure_run_ratio = failure_runs / run_count * 100
+    success_file_ratio = success_files / file_count * 100 if file_count else 0
+    failure_file_ratio = failure_files / file_count * 100 if file_count else 0
 
-    logging.info(f"Characterized {run_count} BOLD runs in {duration:.2f} seconds.")
+    logging.info(f"Characterized {file_count} BOLD runs in {duration:.2f} seconds.")
     logging.info(
-        f"{success_runs}/{run_count} analyses succeeded ({success_run_ratio:.2f}%) "
+        f"{success_files}/{file_count} analyses succeeded ({success_file_ratio:.2f}%) "
         f"from {success_ds}/{ds_count} ({success_ds_ratio:.2f}%) datasets."
     )
     logging.info(
-        f"{failure_runs}/{run_count} analyses failed ({failure_run_ratio:.2f}%) "
+        f"{failure_files}/{file_count} analyses failed ({failure_file_ratio:.2f}%) "
         f"from {failure_ds}/{ds_count} datasets ({failure_ds_ratio:.2f}%)."
     )
 
@@ -361,7 +388,7 @@ def select(
     duration = end - start
 
     rel_run_count = len(df_rel_runs)
-    rel_ratio = rel_run_count / run_count * 100
+    rel_ratio = rel_run_count / run_count * 100 if run_count else 0
 
     logging.info(
         f"Identified {rel_run_count}/{run_count} relevant runs ({rel_ratio:.2f}%) in {duration:.2f} seconds."
@@ -371,7 +398,7 @@ def select(
     df_sel_runs = df_rel_runs.head(total_runs).sort_values(by=[DATASETID, FILENAME])
 
     sel_run_count = len(df_sel_runs)
-    sel_ratio = sel_run_count / rel_run_count * 100
+    sel_ratio = sel_run_count / rel_run_count * 100 if rel_run_count else 0
 
     logging.info(f"Selected the first {sel_run_count}/{rel_run_count} ({sel_ratio:.2f}%) runs.")
 
@@ -423,11 +450,11 @@ def aggregate(in_filename, out_dirname, name, force) -> None:
     failure_files = sum(len(v) for v in failure_results.values())
     file_count = success_files + failure_files
 
-    success_ds_ratio = success_ds / ds_count * 100
-    failure_ds_ratio = failure_ds / ds_count * 100
+    success_ds_ratio = success_ds / ds_count * 100 if ds_count else 0
+    failure_ds_ratio = failure_ds / ds_count * 100 if ds_count else 0
 
-    success_files_ratio = success_files / file_count * 100
-    failure_files_ratio = failure_files / file_count * 100
+    success_files_ratio = success_files / file_count * 100 if file_count else 0
+    failure_files_ratio = failure_files / file_count * 100 if file_count else 0
 
     logging.info(
         f"Failures reported for {failure_files}/{file_count} ({failure_files_ratio:.2f}%) files "

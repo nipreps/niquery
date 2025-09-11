@@ -27,7 +27,7 @@ import pandas as pd
 import pytest
 
 from niquery.analysis.featuring import (
-    extract_bold_features,
+    extract_volume_features,
     get_nii_timepoints,
     get_nii_timepoints_s3,
 )
@@ -115,7 +115,7 @@ def test_extract_bold_features(monkeypatch):
         "niquery.analysis.featuring.get_nii_timepoints_s3", fake_get_nii_timepoints_s3
     )
 
-    success, failures = extract_bold_features(datasets, max_workers=2)
+    success, failures = extract_volume_features(datasets, max_workers=2)
 
     # Success contains ds1 with 2 records and VOLS set, and empty ds2
     assert list(success.keys()) == ["ds1", "ds2"]

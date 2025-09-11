@@ -30,10 +30,8 @@ SPECIES = "species"
 TAG = "tag"
 TASKS = "tasks"
 
-# Attributes used to filter non-human, non-fMRI datasets
+# Attributes used to filter datasets
 DIRECTORY = "directory"
-HUMAN_SPECIES = {"human"}
-FMRI_MODALITIES = {"bold", "fmri", "mri"}
 
 # Attributes used to store locally records with details about datasets (select and characterize for now)
 DATASETID = "datasetid"
