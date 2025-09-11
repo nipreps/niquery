@@ -32,8 +32,6 @@ from tqdm import tqdm
 from niquery.utils.attributes import (
     DATASETID,
     FILENAME,
-    FMRI_MODALITIES,
-    HUMAN_SPECIES,
     MODALITIES,
     REMOTE,
     SPECIES,
@@ -41,107 +39,145 @@ from niquery.utils.attributes import (
 )
 
 
-def filter_nonhuman_datasets(df: pd.DataFrame) -> pd.Series:
-    """Filter non-human data records.
+def filter_species_datasets(df: pd.DataFrame, species: str | list) -> pd.Series:
+    """Filter non-relevant species data records.
 
-    Filters datasets whose 'species' field does not contain one of
-    `HUMAN_SPECIES`.
-
-    Parameters
-    ----------
-    df : :obj:`~pd.DataFrame`
-        Dataset records.
-
-    Returns
-    -------
-    :obj:`~pd.Series`
-        Mask of human datasets.
-    """
-
-    return df[SPECIES].str.lower().isin(HUMAN_SPECIES)
-
-
-def filter_nonmri_datasets(df: pd.DataFrame) -> pd.Series:
-    """Filter non-MRI data records.
-
-    Filters datasets whose 'modalities' field does not contain one of
-    `FMRI_MODALITIES`.
+    Filters datasets whose 'species' field does not contain one of items in
+    ``species``.
 
     Parameters
     ----------
     df : :obj:`~pd.DataFrame`
         Dataset records.
+    species : :obj:`str` or :obj:`list`
+        Species to consider (case-insensitive).
 
     Returns
     -------
     :obj:`~pd.Series`
-        Mask of MRI datasets.
+        Mask of relevant datasets.
     """
+
+    if isinstance(species, str):
+        species = [species]
+
+    return df[SPECIES].str.lower().isin(species)
+
+
+def filter_modality_datasets(df: pd.DataFrame, modality: str | list) -> pd.Series:
+    """Filter non-relevant modality data records.
+
+    Filters datasets whose 'modalities' field does not contain one of items in
+    ``modality``.
+
+    Parameters
+    ----------
+    df : :obj:`~pd.DataFrame`
+        Dataset records.
+    modality : :obj:`str` or :obj:`list`
+        Modalities to consider (case-insensitive).
+
+    Returns
+    -------
+    :obj:`~pd.Series`
+        Mask of relevant datasets.
+    """
+
+    if isinstance(modality, str):
+        modality = [modality]
 
     return df[MODALITIES].apply(
-        lambda x: any(item.lower() in FMRI_MODALITIES for item in ast.literal_eval(x))
+        lambda x: any(item.lower() in modality for item in ast.literal_eval(x))
         if isinstance(x, str) and x.startswith("[")
         else False
     )
 
 
-def filter_nonrelevant_datasets(df: pd.DataFrame) -> pd.DataFrame:
-    """Filter non-human and non-MRI data records.
+def filter_nonrelevant_datasets(
+    df: pd.DataFrame, species: str | list, modality: str | list
+) -> pd.DataFrame:
+    """Filter non-relevant data records.
 
-    The 'species' field has to contain 'human' and the 'modalities' field has to
-    contain one of :obj:`FMRI_MODALITIES`.
+    Return datasets that belong to the provided species and modality..
 
     Parameters
     ----------
     df : :obj:`~pd.DataFrame`
         Dataset records.
+    species : :obj:`str` or :obj:`list`
+        Species to consider (case-insensitive).
+    modality : :obj:`str` or :obj:`list`
+        Modalities to consider (case-insensitive).
 
     Returns
     -------
     :obj:`~pd.DataFrame`
-        Human MRI dataset records.
+        Relevant dataset records.
+
+    See Also
+    --------
+    :obj:`~niquery.analysis.filtering.filter_modality_datasets`
+    :obj:`~niquery.analysis.filtering.filter_modality_datasets`
     """
 
-    species_mask = filter_nonhuman_datasets(df)
-    modality_mask = filter_nonmri_datasets(df)
+    species_mask = filter_species_datasets(df, species)
+    modality_mask = filter_modality_datasets(df, modality)
 
-    logging.info(f"Found {sum(~species_mask)}/{len(df)} non-human datasets.")
-    logging.info(f"Found {sum(~modality_mask)}/{len(df)} non-MRI datasets.")
+    logging.info(f"Found {sum(~species_mask)}/{len(df)} datasets from other species.")
+    logging.info(f"Found {sum(~modality_mask)}/{len(df)} datasets from other modalities.")
 
     return df[species_mask & modality_mask]
 
 
-def filter_nonbold_records(fname: str, sep: str) -> pd.DataFrame:
-    """Keep records where 'filename' matches BOLD naming.
+def filter_modality_records(fname: str, sep: str, suffix: str | list) -> pd.DataFrame:
+    """Keep records where the filename matches the provided modality naming convention.
 
-    Keeps records where 'filename' ends with '_bold.nii.gz'.
+    Following the
+    `BIDS modality suffix convention <https://bids.neuroimaging.io/getting_started/folders_and_files/files.html#filename-template>`__,
+    keeps records where the 'filename' attribute ends with the given suffix,
+    i.e. '_{suffix}.nii.gz'.
 
     Parameters
     ----------
     fname : :obj:`str`
-        Filename.
+        Filename. A delimiter-separated file containing the list of records to
+        be inspected.
     sep : :obj:`str`
         Separator.
+    suffix : :obj:`str` or :obj:`list`
+        Suffix of the relevant files.
 
     Returns
     -------
     :obj:`~pd.DataFrame`
-        BOLD file records.
+        Modality file records.
     """
 
+    if isinstance(suffix, str):
+        suffix = [suffix]
+
+    pattern = "(" + "|".join([s + ".nii.gz" for s in suffix]) + ")"
     df = pd.read_csv(fname, sep=sep)
-    return df[df[FILENAME].apply(lambda fn: bool(re.search(r"_bold\.nii\.gz$", fn)))]
+    return df[df[FILENAME].apply(lambda fn: bool(re.search(pattern, fn)))]
 
 
-def identify_bold_files(datasets: dict, sep: str, max_workers: int = 8) -> dict:
-    """Identify dataset BOLD files.
+def identify_modality_files(
+    datasets: dict, sep: str, suffix: str | list, max_workers: int = 8
+) -> dict:
+    """Identify dataset files having a particular suffix.
 
-    For each dataset, keeps records where 'filename' ends with '_bold.nii.gz'.
+    For each dataset, and following the
+    `BIDS modality suffix convention <https://bids.neuroimaging.io/getting_started/folders_and_files/files.html#filename-template>`__,
+    keeps records where the 'filename' attribute ends with '_{suffix}.nii.gz'.
 
     Parameters
     ----------
     datasets : :obj:`dict`
-        Dataset file information.
+        Dataset file information. Contains a list of datasets ids and the
+        corresponding delimiter-separated files containing the list of records
+        to be inspected.
+    suffix : :obj:`str` or :obj:`list`
+        Suffix of the relevant files.
     sep : :obj:`str`
         Separator.
     max_workers : :obj:`int`, optional
@@ -150,16 +186,23 @@ def identify_bold_files(datasets: dict, sep: str, max_workers: int = 8) -> dict:
     Returns
     -------
     results : :obj:`dict`
-        Dictionary of dataset BOLD files.
+        Dictionary of dataset modality-specific file records.
+
+    See Also
+    --------
+    :obj:`~niquery.analysis.filtering.filter_modality_records`
     """
 
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = {
-            executor.submit(filter_nonbold_records, val, sep): key for key, val in datasets.items()
+            executor.submit(filter_modality_records, val, sep, suffix): key
+            for key, val in datasets.items()
         }
 
         results = {}
-        for future in tqdm(as_completed(futures), total=len(futures), desc="Filtering BOLD files"):
+        for future in tqdm(
+            as_completed(futures), total=len(futures), desc="Filtering modality files"
+        ):
             key = futures[future]
             results[key] = future.result()
 
@@ -267,6 +310,11 @@ def filter_runs(
     -------
     :obj:`~pd.DataFrame`
         Filtered BOLD runs.
+
+    See Also
+    --------
+    :obj:`~niquery.analysis.filtering.filter_on_timepoint_count`
+    :obj:`~niquery.analysis.filtering.filter_on_run_contribution`
     """
 
     # Criterion 2: the BOLD run has [min, max] timepoints (inclusive)
@@ -314,6 +362,10 @@ def identify_relevant_runs(
     -------
     :obj:`~pd.DataFrame`
         Identified relevant BOLD runs.
+
+    See Also
+    --------
+    :obj:`~niquery.analysis.filtering.filter_runs`
     """
 
     # Shuffle records for randomness

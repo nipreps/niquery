@@ -3,14 +3,13 @@
 How to Use
 ==========
 
-*NiQuery* is a command-line tool for indexing, collecting,analyzing,
-and selecting fMRI BOLD datasets from a remote neuroimaging data
-server, such as OpenNeuro. The typical workflow consists of four
-stages:
+*NiQuery* is a command-line tool for indexing, collecting, analyzing,
+and selecting datasets from a remote neuroimaging data server, such as
+OpenNeuro. The typical workflow consists of five stages:
 
   #. **Index**: Retrieve available datasets and snapshot information
      from the remote server.
-  #. **Collect**: Gather per-dataset fMRI BOLD file listings.
+  #. **Collect**: Gather per-dataset modality file listings.
   #. **Analyze**: Extract features from collected files.
   #. **Select**: Choose datasets that satisfy specific constraints.
   #. **Aggregate**: Aggregate into a DataLad dataset the selected
@@ -24,7 +23,7 @@ Below are example calls to perform the *NiQuery* actions:
 
 **Collect**::
 
-  niquery collect openneuro_datasets.tsv ./dataset_files
+  niquery collect openneuro_datasets.tsv ./dataset_files --species human --modality bold --modality fmri --modality mri
 
 ``collect`` traverses all trees for all datasets of interest in order
 to gather the paths to the ``NIfTI`` files. Note that this process can
@@ -32,7 +31,7 @@ take several hours.
 
 **Analyze**::
 
-  niquery analyze ./dataset_files ./dataset_features
+  niquery analyze ./dataset_files ./dataset_features --suffix bold
 
 **Select**::
 

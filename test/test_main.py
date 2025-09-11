@@ -34,7 +34,7 @@ from click.testing import CliRunner
 
 from niquery.__main__ import cli
 from niquery.data.utils import bids_dataset_name_pattern
-from niquery.io.utils import append_modality_to_filename
+from niquery.io.utils import append_label_to_filename
 from niquery.utils.attributes import DATASETID
 from niquery.utils.optpckg import have_datalad
 
@@ -83,9 +83,25 @@ def test_collect_run(tmp_path):
     in_fname = Path(os.getenv("TEST_DATA_HOME")) / "openneuro_datasets_sample.tsv"
     out_dirname = tmp_path / "dataset_files"
     os.makedirs(out_dirname, exist_ok=False)
-    result = runner.invoke(cli, [cmd_str, str(in_fname), str(out_dirname)], prog_name=cli_name)
+    result = runner.invoke(
+        cli,
+        [
+            cmd_str,
+            str(in_fname),
+            str(out_dirname),
+            "--species",
+            "human",
+            "--modality",
+            "bold",
+            "--modality",
+            "fmri",
+            "--modality",
+            "mri",
+        ],
+        prog_name=cli_name,
+    )
     assert result.exit_code == 0
-    fname = append_modality_to_filename(in_fname, "mri")
+    fname = append_label_to_filename(in_fname, "relevant")
     assert fname.is_file()
     expected_ds_count = 11
     pattern = bids_dataset_name_pattern()
@@ -117,7 +133,11 @@ def test_analyze_run(tmp_path):
     in_dirname = Path(os.getenv("TEST_DATA_HOME")) / "dataset_files"
     out_dirname = tmp_path / "dataset_features"
     os.makedirs(out_dirname, exist_ok=False)
-    result = runner.invoke(cli, [cmd_str, str(in_dirname), str(out_dirname)], prog_name=cli_name)
+    result = runner.invoke(
+        cli,
+        [cmd_str, str(in_dirname), str(out_dirname), "--suffix", "bold"],
+        prog_name=cli_name,
+    )
     assert result.exit_code == 0
     expected_ds_count = 10
     pattern = re.compile(r"ds\d{6}\.tsv")

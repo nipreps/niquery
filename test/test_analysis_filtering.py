@@ -24,14 +24,14 @@
 import pandas as pd
 
 from niquery.analysis.filtering import (
-    filter_nonbold_records,
-    filter_nonhuman_datasets,
-    filter_nonmri_datasets,
+    filter_modality_datasets,
+    filter_modality_records,
     filter_nonrelevant_datasets,
     filter_on_run_contribution,
     filter_on_timepoint_count,
     filter_runs,
-    identify_bold_files,
+    filter_species_datasets,
+    identify_modality_files,
     identify_relevant_runs,
 )
 from niquery.utils.attributes import DATASETID, FILENAME, MODALITIES, REMOTE, SPECIES, VOLS
@@ -39,7 +39,7 @@ from niquery.utils.attributes import DATASETID, FILENAME, MODALITIES, REMOTE, SP
 DSV_SEPARATOR = "\t"
 
 
-def test_filter_nonhuman_datasets():
+def test_filter_species_datasets():
     df = pd.DataFrame(
         [
             {SPECIES: "human"},
@@ -47,12 +47,11 @@ def test_filter_nonhuman_datasets():
             {SPECIES: "Human"},
         ]
     )
-
-    species_mask = filter_nonhuman_datasets(df)
+    species_mask = filter_species_datasets(df, species=["human"])
     assert species_mask.tolist() == [True, False, True]
 
 
-def test_filter_nonmri_datasets():
+def test_filter_modality_datasets():
     df = pd.DataFrame(
         [
             {MODALITIES: "['fMRI']"},
@@ -60,8 +59,7 @@ def test_filter_nonmri_datasets():
             {MODALITIES: "[]"},
         ]
     )
-
-    modality_mask = filter_nonmri_datasets(df)
+    modality_mask = filter_modality_datasets(df, modality=["fmri"])
     assert modality_mask.tolist() == [True, False, False]
 
 
@@ -73,14 +71,21 @@ def test_filter_nonrelevant_datasets():
             {SPECIES: "human", MODALITIES: "['eeg']"},  # modality fails
         ]
     )
-    out = filter_nonrelevant_datasets(df)
+    out = filter_nonrelevant_datasets(df, species=["human"], modality=["fmri"])
+    # Only the first row survives
+    assert len(out) == 1
+    assert out.iloc[0][SPECIES].lower() == "human"
+    assert out.iloc[0][MODALITIES].lower() == "['fmri']"
+
+    # Check providing strings instead of lists to species, modality parameters
+    out = filter_nonrelevant_datasets(df, species="human", modality="fmri")
     # Only the first row survives
     assert len(out) == 1
     assert out.iloc[0][SPECIES].lower() == "human"
     assert out.iloc[0][MODALITIES].lower() == "['fmri']"
 
 
-def test_filter_nonbold_records(tmp_path):
+def test_filter_modality_records(tmp_path):
     csv = tmp_path / "files.tsv"
     rows = [
         {FILENAME: "sub-01_task-rest_bold.nii.gz"},
@@ -90,14 +95,14 @@ def test_filter_nonbold_records(tmp_path):
     ]
     pd.DataFrame(rows).to_csv(csv, sep=DSV_SEPARATOR, index=False)
 
-    df = filter_nonbold_records(str(csv), sep=DSV_SEPARATOR)
+    df = filter_modality_records(str(csv), sep=DSV_SEPARATOR, suffix="bold")
     assert df[FILENAME].tolist() == [
         "sub-01_task-rest_bold.nii.gz",
         "sub-03_task-rest_bold.nii.gz",
     ]
 
 
-def test_identify_bold_files(tmp_path):
+def test_identify_modality_files(tmp_path):
     # Create two TSV files
     f1 = tmp_path / "a.tsv"
     f2 = tmp_path / "b.tsv"
@@ -107,7 +112,7 @@ def test_identify_bold_files(tmp_path):
     pd.DataFrame([{FILENAME: "z_bold.nii.gz"}]).to_csv(f2, sep=DSV_SEPARATOR, index=False)
 
     datasets = {"ds1": str(f1), "ds2": str(f2)}
-    out = identify_bold_files(datasets, sep=DSV_SEPARATOR)
+    out = identify_modality_files(datasets, sep=DSV_SEPARATOR, suffix="bold")
 
     # Keys sorted
     assert list(out.keys()) == ["ds1", "ds2"]
