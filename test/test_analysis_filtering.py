@@ -34,7 +34,7 @@ from niquery.analysis.filtering import (
     identify_bold_files,
     identify_relevant_runs,
 )
-from niquery.utils.attributes import DATASETID, FILENAME, MODALITIES, SPECIES, VOLS
+from niquery.utils.attributes import DATASETID, FILENAME, MODALITIES, REMOTE, SPECIES, VOLS
 
 DSV_SEPARATOR = "\t"
 
@@ -124,10 +124,10 @@ def test_filter_on_timepoint_count():
 def test_filter_on_run_contribution_sampling_and_column_order():
     df = pd.DataFrame(
         [
-            {DATASETID: "ds1", VOLS: 100},
-            {DATASETID: "ds1", VOLS: 200},
-            {DATASETID: "ds1", VOLS: 300},
-            {DATASETID: "ds2", VOLS: 150},
+            {REMOTE: "myremote", DATASETID: "ds1", VOLS: 100},
+            {REMOTE: "myremote", DATASETID: "ds1", VOLS: 200},
+            {REMOTE: "myremote", DATASETID: "ds1", VOLS: 300},
+            {REMOTE: "myremote", DATASETID: "ds2", VOLS: 150},
         ]
     )
     out = filter_on_run_contribution(df, contrib_thr=2, seed=1234)
@@ -143,10 +143,10 @@ def test_filter_on_run_contribution_sampling_and_column_order():
 def test_filter_runs():
     df = pd.DataFrame(
         [
-            {DATASETID: "ds1", VOLS: 100},
-            {DATASETID: "ds1", VOLS: 200},
-            {DATASETID: "ds1", VOLS: 300},
-            {DATASETID: "ds2", VOLS: 150},
+            {REMOTE: "myremote", DATASETID: "ds1", VOLS: 100},
+            {REMOTE: "myremote", DATASETID: "ds1", VOLS: 200},
+            {REMOTE: "myremote", DATASETID: "ds1", VOLS: 300},
+            {REMOTE: "myremote", DATASETID: "ds2", VOLS: 150},
         ]
     )
     out = filter_runs(df, contrib_thr=2, min_timepoints=150, max_timepoints=300, seed=1234)
@@ -158,10 +158,10 @@ def test_filter_runs():
 def test_identify_relevant_runs():
     df = pd.DataFrame(
         [
-            {DATASETID: "ds1", VOLS: 100},
-            {DATASETID: "ds1", VOLS: 200},
-            {DATASETID: "ds1", VOLS: 300},
-            {DATASETID: "ds2", VOLS: 150},
+            {REMOTE: "myremote", DATASETID: "ds1", VOLS: 100},
+            {REMOTE: "myremote", DATASETID: "ds1", VOLS: 200},
+            {REMOTE: "myremote", DATASETID: "ds1", VOLS: 300},
+            {REMOTE: "myremote", DATASETID: "ds2", VOLS: 150},
         ]
     )
     out = identify_relevant_runs(

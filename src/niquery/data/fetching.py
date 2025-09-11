@@ -24,8 +24,8 @@
 from datalad.api import Dataset
 from datalad.support.exceptions import IncompleteResultsError
 
-from niquery.data.remotes import OPENNEURO_DS_TEMPLATE
-from niquery.utils.attributes import DATASETID, FULLPATH
+from niquery.data.remotes import DS_TEMPLATE, REMOTES
+from niquery.utils.attributes import DATASETID, FULLPATH, REMOTE
 
 
 def fetch_datalad_remote_files(df, out_dirname, dataset_name) -> tuple:
@@ -46,8 +46,8 @@ def fetch_datalad_remote_files(df, out_dirname, dataset_name) -> tuple:
     Parameters
     ----------
     df : :obj:`~pd.DataFrame`
-        Table containing at least 'datasetid', and 'fullpath' columns. Each row
-        corresponds to a file to be fetched.
+        Table containing at least 'remote', 'datasetid', and 'fullpath' columns.
+        Each row corresponds to a file to be fetched.
     out_dirname : :obj:`Path`
         Output directory where the datasets will be cloned and files stored.
     dataset_name : :obj:`str`
@@ -59,8 +59,8 @@ def fetch_datalad_remote_files(df, out_dirname, dataset_name) -> tuple:
         Dictionary of datasets and the filenames succeeded/failed for each.
     """
 
-    # Group by dataset_id, collect all file paths for each dataset
-    grouped = df.groupby(DATASETID)
+    # Group by remote, dataset_id; collect all file paths for each dataset
+    grouped = df.groupby([REMOTE, DATASETID])
 
     # Create new datalad dataset
     aggr_ds_path = out_dirname / dataset_name
@@ -74,9 +74,9 @@ def fetch_datalad_remote_files(df, out_dirname, dataset_name) -> tuple:
     success_results: dict[str, list[str]] = {}
     failure_results: dict[str, list[str]] = {}
 
-    # Loop over datasets
-    for dataset_id, file_list in grouped:
-        ds_url = OPENNEURO_DS_TEMPLATE.format(DATASET_ID=dataset_id)
+    # Loop over remote, dataset pairs
+    for (remote, dataset_id), file_list in grouped:
+        ds_url = REMOTES[remote][DS_TEMPLATE].format(DATASET_ID=dataset_id)
         ds_path = aggr_ds_path / str(dataset_id)
         if not ds_path.exists():
             ds = aggr_ds.clone(source=ds_url, path=str(ds_path))
