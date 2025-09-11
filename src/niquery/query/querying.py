@@ -29,7 +29,7 @@ import pandas as pd
 import requests
 from tqdm import tqdm
 
-from niquery.data.remotes import OPENNEURO_GRAPHQL_URL
+from niquery.data.remotes import GRAPHQL_URL, REMOTES
 from niquery.utils.attributes import (
     DATASET_DOI,
     DATASETID,
@@ -39,6 +39,7 @@ from niquery.utils.attributes import (
     ID,
     MODALITIES,
     NAME,
+    REMOTE,
     SPECIES,
     TAG,
     TASKS,
@@ -50,11 +51,15 @@ MAX_QUERY_SIZE = 100
 """Maximum page size."""
 
 
-def fetch_page(after_cursor: str | None = None) -> dict:
-    """Fetch a single page of OpenNeuro datasets using GraphQL.
+def fetch_page(gql_url: str, after_cursor: str | None = None) -> dict:
+    """Fetch a single page of datasets from a remote server via its URL.
+
+    The remote server needs to offer a GraphQL API.
 
     Parameters
     ----------
+    gql_url : :obj:`str`
+        GraphQL URL to fetch data from.
     after_cursor : :obj:`str`, optional
         The pagination cursor indicating where to start. If ``None``, fetches
         the first page.
@@ -98,35 +103,45 @@ def fetch_page(after_cursor: str | None = None) -> dict:
 
     variables = {"after": after_cursor, "first": MAX_QUERY_SIZE}
     response = requests.post(
-        OPENNEURO_GRAPHQL_URL, headers=HEADERS, json={"query": query, "variables": variables}
+        gql_url, headers=HEADERS, json={"query": query, "variables": variables}
     )
     response.raise_for_status()
     return response.json()["data"]["datasets"]
 
 
-def get_cursors() -> list:
-    """Serially walk through the entire OpenNeuro dataset list to collect all pagination cursors.
+def get_cursors(remote: str) -> list:
+    """Serially walk through the entire dataset list from the given remote to collect all pagination cursors.
 
     This function starts from the beginning and keeps fetching pages until the
     last one, recording the 'endCursor' of each page to enable parallel fetching
     later.
 
+    The remote server needs to offer a GraphQL API.
+
+    Parameters
+    ----------
+    remote : :obj:`str`
+        Name of the remote to fetch data from.
+
     Returns
     -------
     cursors : :obj:`list`
-        List of cursors, where the first cursor is ``None`` (start of list), and
-        the rest are page markers returned by GraphQL.
+        List of remote and cursor tuples, where the first cursor is ``None``
+        (start of list), and the rest are page markers returned by GraphQL.
     """
 
-    cursors = [None]
+    gql_url = REMOTES[remote][GRAPHQL_URL]
+    logging.info(f"Querying {gql_url}...")
+
+    cursors = [(remote, None)]
     current_cursor = None
     with tqdm(desc="Discovering cursors", unit="page") as pbar:
         while True:
-            data = fetch_page(current_cursor)
+            data = fetch_page(gql_url, current_cursor)
             page_info = data["pageInfo"]
             if page_info["hasNextPage"]:
                 current_cursor = page_info["endCursor"]
-                cursors.append(current_cursor)
+                cursors.append((remote, current_cursor))
                 pbar.update(1)
             else:
                 break
@@ -134,12 +149,12 @@ def get_cursors() -> list:
 
 
 def fetch_pages(cursors: list, max_workers: int = 8) -> list:
-    """Fetch all OpenNeuro dataset pages in parallel using a precomputed list of cursors.
+    """Fetch all dataset pages in parallel using a precomputed list of cursors.
 
     Parameters
     ----------
     cursors : :obj:`list`
-        List of cursors.
+        List of remote server name and cursor tuples.
     max_workers : :obj:`int`, optional
         Maximum number of parallel threads to use.
 
@@ -149,15 +164,25 @@ def fetch_pages(cursors: list, max_workers: int = 8) -> list:
         List of datasets.
     """
 
-    logging.info(f"Querying {OPENNEURO_GRAPHQL_URL}...")
-
     results: list[dict] = []
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        futures = {executor.submit(fetch_page, cursor): cursor for cursor in cursors}
+        futures = {
+            executor.submit(fetch_page, REMOTES[cursor[0]][GRAPHQL_URL], cursor[1]): cursor
+            for cursor in cursors
+        }
         with tqdm(total=len(futures), desc="Fetching pages", unit="page") as pbar:
             for future in as_completed(futures):
+                remote = futures[future][0]
                 data = future.result()
-                results.extend(edge for edge in data["edges"] if edge is not None)
+                # Some items in edges may be None, so avoid trying to access the
+                # "node" property on them
+                results.extend(
+                    [
+                        {**edge, "node": {REMOTE: remote, **edge["node"]}}
+                        for edge in data["edges"]
+                        if edge is not None and edge.get("node") is not None
+                    ]
+                )
                 pbar.update(1)
     return results
 
@@ -175,8 +200,9 @@ def edges_to_dataframe(edges: list) -> pd.DataFrame:
     Returns
     -------
     :obj:`~pd.DataFrame`
-        A DataFrame with the relevant dataset information, namely 'id', 'name',
-        'species', 'tag', 'dataset_doi', 'modalities', and 'tasks'.
+        A DataFrame with the relevant dataset information, namely 'remote',
+        'id', 'name', 'species', 'tag', 'dataset_doi', 'modalities', and
+        'tasks'.
     """
 
     rows = []
@@ -186,6 +212,7 @@ def edges_to_dataframe(edges: list) -> pd.DataFrame:
         node = item["node"]
         snapshot = node.get("latestSnapshot", {})
         row = {
+            REMOTE.lower(): node.get(REMOTE),
             ID.lower(): node.get(ID),
             NAME.lower(): node.get(NAME, None),
             SPECIES.lower(): node.get("metadata", None).get(SPECIES),
@@ -260,13 +287,17 @@ def post_with_retry(
     return None
 
 
-def query_snapshot_files(dataset_id: str, snapshot_tag: str, tree: str | None = None) -> list:
+def query_snapshot_files(
+    gql_url: str, dataset_id: str, snapshot_tag: str, tree: str | None = None
+) -> list:
     """Query the list of files at a specific level of a dataset snapshot.
 
     Parameters
     ----------
+    gql_url : :obj:`str`
+        GraphQL URL to query data from.
     dataset_id : :obj:`str`
-        The OpenNeuro dataset ID (e.g., 'ds000001').
+        The dataset ID (e.g., 'ds000001').
     snapshot_tag : :obj:`str`
         The tag of the snapshot to query (e.g., '1.0.0').
     tree : :obj:`str`, optional
@@ -297,9 +328,7 @@ def query_snapshot_files(dataset_id: str, snapshot_tag: str, tree: str | None = 
     """
 
     variables = {"datasetId": dataset_id, "tag": snapshot_tag, "tree": tree}
-    response = post_with_retry(
-        OPENNEURO_GRAPHQL_URL, HEADERS, {"query": query, "variables": variables}
-    )
+    response = post_with_retry(gql_url, HEADERS, {"query": query, "variables": variables})
 
     # Ensure that the JSON response object contains all required keys
     if response is None:
@@ -317,14 +346,16 @@ def query_snapshot_files(dataset_id: str, snapshot_tag: str, tree: str | None = 
 
 
 def query_snapshot_tree(
-    dataset_id: str, snapshot_tag: str, tree: str | None = None, parent_path=""
+    gql_url: str, dataset_id: str, snapshot_tag: str, tree: str | None = None, parent_path=""
 ) -> list:
-    """Recursively query all files in an OpenNeuro dataset snapshot.
+    """Recursively query all files in a dataset snapshot.
 
     Parameters
     ----------
+    gql_url : :obj:`str`
+        GraphQL URL to query data from.
     dataset_id : :obj:`str`
-        The OpenNeuro dataset ID (e.g., 'ds000001').
+        The dataset ID (e.g., 'ds000001').
     snapshot_tag : :obj:`str`
         The tag of the snapshot to query (e.g., '1.0.0').
     tree : :obj:`str`, optional
@@ -343,7 +374,7 @@ def query_snapshot_tree(
     all_files = []
 
     try:
-        files = query_snapshot_files(dataset_id, snapshot_tag, tree)
+        files = query_snapshot_files(gql_url, dataset_id, snapshot_tag, tree)
     except Exception as e:
         logging.warning(f"Failed to query {dataset_id}:{snapshot_tag} at tree {tree}: {e}")
         return []
@@ -352,7 +383,7 @@ def query_snapshot_tree(
         current_path = f"{parent_path}/{f[FILENAME]}".lstrip("/")
         if f[DIRECTORY]:
             sub_files = query_snapshot_tree(
-                dataset_id, snapshot_tag, f[ID], parent_path=current_path
+                gql_url, dataset_id, snapshot_tag, f[ID], parent_path=current_path
             )
             all_files.extend(sub_files)
         else:
@@ -362,8 +393,8 @@ def query_snapshot_tree(
     return all_files
 
 
-def query_dataset_files(dataset_id: str, snapshot_tag: str) -> list:
-    """Retrieve all files for a given OpenNeuro dataset snapshot.
+def query_dataset_files(gql_url: str, dataset_id: str, snapshot_tag: str) -> list:
+    """Retrieve all files for a given dataset snapshot.
 
     This function takes a dataset metadata dictionary (typically a row from a
     :obj:`~pd.DataFrame`), extracts the dataset ID and snapshot tag, and
@@ -372,6 +403,8 @@ def query_dataset_files(dataset_id: str, snapshot_tag: str) -> list:
 
     Parameters
     ----------
+    gql_url : :obj:`str`
+        GraphQL URL to query data from.
     dataset_id : :obj:`str`
         Dataset ID (e.g., 'ds000001').
     snapshot_tag : :obj:`str`
@@ -395,7 +428,7 @@ def query_dataset_files(dataset_id: str, snapshot_tag: str) -> list:
         return []
 
     try:
-        files = query_snapshot_tree(dataset_id, snapshot_tag)
+        files = query_snapshot_tree(gql_url, dataset_id, snapshot_tag)
     except Exception as e:
         logging.warning(f"Post request error for {dataset_id}:{snapshot_tag}: {e}")
         return []
@@ -420,34 +453,37 @@ def query_datasets(df: pd.DataFrame, max_workers: int = 8) -> tuple:
         list of failed dataset ID and snapshot tags.
     """
 
-    logging.info(f"Querying {OPENNEURO_GRAPHQL_URL}...")
-
     success_results = {}
     failure_results = []
 
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = {
-            executor.submit(query_dataset_files, row[ID], row[TAG]): (row[ID], row[TAG])
+            executor.submit(
+                query_dataset_files, REMOTES[row[REMOTE]][GRAPHQL_URL], row[ID], row[TAG]
+            ): (row[REMOTE], row[ID], row[TAG])
             for _, row in df.iterrows()
         }
 
         for future in tqdm(as_completed(futures), total=len(futures), desc="Processing datasets"):
-            dataset_id, snapshot_tag = futures[future]
+            remote, dataset_id, snapshot_tag = futures[future]
             try:
                 result = future.result(timeout=20)
                 if result:
                     success_results[dataset_id] = [
-                        {DATASETID: dataset_id, TAG: snapshot_tag} | file for file in result
+                        {REMOTE: remote, DATASETID: dataset_id, TAG: snapshot_tag} | file
+                        for file in result
                     ]
                 else:
                     logging.warning(f"Empty result for {dataset_id}:{snapshot_tag}")
-                    failure_results.append({DATASETID: dataset_id, TAG: snapshot_tag})
+                    failure_results.append(
+                        {REMOTE: remote, DATASETID: dataset_id, TAG: snapshot_tag}
+                    )
             except TimeoutError:
                 logging.info(f"Timeout for {dataset_id}:{snapshot_tag}")
-                failure_results.append({DATASETID: dataset_id, TAG: snapshot_tag})
+                failure_results.append({REMOTE: remote, DATASETID: dataset_id, TAG: snapshot_tag})
             except Exception as e:
                 logging.info(f"Failed to process {dataset_id}:{snapshot_tag}: {e}")
-                failure_results.append({DATASETID: dataset_id, TAG: snapshot_tag})
+                failure_results.append({REMOTE: remote, DATASETID: dataset_id, TAG: snapshot_tag})
 
     # Sort results before returning
     return {

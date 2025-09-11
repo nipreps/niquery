@@ -21,7 +21,16 @@
 #     https://www.nipreps.org/community/licensing/
 #
 
-# OpenNeuro
-OPENNEURO_BUCKET = "openneuro.org"
-OPENNEURO_GRAPHQL_URL = "https://openneuro.org/crn/graphql"
-OPENNEURO_DS_TEMPLATE = "https://github.com/OpenNeuroDatasets/{DATASET_ID}.git"
+BUCKET = "bucket"
+GRAPHQL_URL = "graphql_url"
+DS_TEMPLATE = "ds_template"
+
+OPENNEURO = "openneuro"
+
+REMOTES = {
+    OPENNEURO: {
+        BUCKET: "openneuro.org",
+        GRAPHQL_URL: "https://openneuro.org/crn/graphql",
+        DS_TEMPLATE: "https://github.com/OpenNeuroDatasets/{DATASET_ID}.git",
+    }
+}

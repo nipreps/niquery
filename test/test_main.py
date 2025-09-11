@@ -51,7 +51,7 @@ def test_index_help():
     runner = CliRunner()
     result = runner.invoke(cli, [cmd_str, "--help"], prog_name=cli_name)
     assert result.exit_code == 0
-    assert result.output.startswith(f"Usage: {cli_name} {cmd_str} [OPTIONS] OUT_FILENAME")
+    assert result.output.startswith(f"Usage: {cli_name} {cmd_str} [OPTIONS] REMOTE OUT_FILENAME")
 
 
 def test_index_run(tmp_path):

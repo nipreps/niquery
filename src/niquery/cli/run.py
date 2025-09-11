@@ -83,14 +83,18 @@ def cli() -> None:
 
 
 @cli.command()
+@click.argument("remote", type=click.STRING)
 @click.argument("out_filename", type=click.Path(dir_okay=False, path_type=Path))
 @force_output
-def index(out_filename, force) -> None:
-    """Index existing dataset information from OpenNeuro.
+def index(remote, out_filename, force) -> None:  ## Stores tasks (specific to fMRI) (open issue)
+    """Index existing dataset information from a remote server.
 
-    The 'id', 'name', 'species', 'tag', 'dataset_doi', 'modalities', and 'tasks'
-    features of the available datasets are stored in a TSV file.
+    The remote server needs to offer a GraphQL API.
 
+    The 'remote', 'id', 'name', 'species', 'tag', 'dataset_doi', 'modalities',
+    and 'tasks' features of the available datasets are stored in a TSV file.
+
+    REMOTE       str    Remote server name
     OUT_FILENAME path   Output filename
     """
 
@@ -102,10 +106,12 @@ def index(out_filename, force) -> None:
         "Script called with arguments:\n" + "\n".join(f"  {k}: {v}" for k, v in locals().items())
     )
 
+    logging.info(f"Indexing {remote}...")
+
     start = time.time()
 
     # Precompute all cursors
-    cursors = get_cursors()
+    cursors = get_cursors(remote)
 
     # Fetch all pages in parallel
     edges = fetch_pages(cursors, max_workers=MAX_WORKERS)
@@ -128,14 +134,14 @@ def index(out_filename, force) -> None:
 @click.argument("out_dirname", type=click.Path(exists=True, file_okay=False, path_type=Path))
 @force_output
 def collect(in_filename, out_dirname, force) -> None:
-    """Collect human (f)MRI datasets' file information from OpenNeuro using IDs
-    read from the input file.
+    """Collect human (f)MRI datasets' file information from using the remotes
+    and IDs read from the input file.
 
     Only those datasets having 'human' in the species field are kept. Any
     dataset having one of {'bold', 'fmri', 'mri'} in the 'modality' field is
     considered an fMRI dataset. For each queried dataset, the list of files is
-    stored in a TSV file, along with the 'id', 'filename', 'size', 'directory',
-    'annexed', 'key', 'urls', and 'fullpath' features.
+    stored in a TSV file, along with the 'remote', 'id', 'filename', 'size',
+    'directory', 'annexed', 'key', 'urls', and 'fullpath' features.
 
     IN_FILENAME path  Dataset list filename
 
@@ -364,7 +370,8 @@ def select(
     rel_ratio = rel_run_count / run_count * 100
 
     logging.info(
-        f"Identified {rel_run_count}/{run_count} relevant runs ({rel_ratio:.2f}%) in {duration:.2f} seconds."
+        f"Identified {rel_run_count}/{run_count} relevant runs ({rel_ratio:.2f}%) "
+        f"in {duration:.2f} seconds."
     )
 
     # Keep only the first `total_runs`

@@ -31,7 +31,7 @@ from niquery.analysis.featuring import (
     get_nii_timepoints,
     get_nii_timepoints_s3,
 )
-from niquery.utils.attributes import DATASETID, FULLPATH, VOLS
+from niquery.utils.attributes import DATASETID, FULLPATH, REMOTE, VOLS
 
 
 class DummyBody:
@@ -73,7 +73,7 @@ def test_get_nii_timepoints_s3_success(monkeypatch):
     monkeypatch.setattr("niquery.analysis.featuring.s3", DummyS3(gz))
     monkeypatch.setattr("niquery.analysis.featuring.nb.Nifti1Image", DummyNifti)
 
-    n = get_nii_timepoints_s3("ds000001/path/file.nii.gz")
+    n = get_nii_timepoints_s3("mybucket", "ds000001/path/file.nii.gz")
     assert n == 123
 
 
@@ -97,15 +97,19 @@ def test_get_nii_timepoints_success_and_error(monkeypatch):
 
 def test_extract_bold_features(monkeypatch):
     # Prepare input dict: two datasets with small DataFrames
+    remote = "openneuro"
     df1 = pd.DataFrame(
-        [{FULLPATH: "sub-01/func/a_bold.nii.gz"}, {FULLPATH: "sub-01/func/b_bold.nii.gz"}]
+        [
+            {REMOTE: remote, FULLPATH: "sub-01/func/a_bold.nii.gz"},
+            {REMOTE: remote, FULLPATH: "sub-01/func/b_bold.nii.gz"},
+        ]
     )
-    df2 = pd.DataFrame([{FULLPATH: "sub-02/func/c_bold.nii.gz"}])
+    df2 = pd.DataFrame([{REMOTE: remote, FULLPATH: "sub-02/func/c_bold.nii.gz"}])
 
     datasets = {"ds1": df1, "ds2": df2}
 
-    def fake_get_nii_timepoints_s3(path_str):
-        # The implementation under test passes Path(dataset_id) / Path(df.iloc[0][FULLPATH])
+    def fake_get_nii_timepoints_s3(bucket, path_str):
+        # The implementation under test passes Path(dataset_id) / Path(rec[FULLPATH])
         # so we distinguish by dataset id in the path string.
         if "ds1" in path_str:
             return 50
@@ -126,4 +130,4 @@ def test_extract_bold_features(monkeypatch):
     assert success["ds2"] == []
 
     # Failures contain ds2's only record
-    assert failures == [{DATASETID: "ds2", FULLPATH: df2.iloc[0][FULLPATH]}]
+    assert failures == [{DATASETID: "ds2", FULLPATH: df2.iloc[0][FULLPATH], REMOTE: remote}]

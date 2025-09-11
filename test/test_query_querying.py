@@ -49,6 +49,7 @@ from niquery.utils.attributes import (
     ID,
     MODALITIES,
     NAME,
+    REMOTE,
     SPECIES,
     TAG,
     TASKS,
@@ -86,7 +87,7 @@ def test_fetch_page(monkeypatch):
 
     monkeypatch.setattr(requests, "post", mock_post)
 
-    out = fetch_page()
+    out = fetch_page("mygql_url")
     assert "edges" in out and "pageInfo" in out
     assert out["edges"][0]["node"]["id"] == "ds000001"
 
@@ -99,22 +100,24 @@ def test_get_cursors(monkeypatch):
     ]
     calls = {"i": 0}
 
-    def mock_fetch_page(cursor):
+    def mock_fetch_page(_, cursor):
         i = calls["i"]
         calls["i"] += 1
         return pages[i]
 
     monkeypatch.setattr("niquery.query.querying.fetch_page", mock_fetch_page)
 
-    cursors = get_cursors()
-    assert cursors == [None, "CUR1"]
+    remote = "openneuro"
+    cursors = get_cursors(remote)
+    assert cursors == [(remote, None), (remote, "CUR1")]
 
 
 def test_fetch_pages(monkeypatch):
     # Create 3 cursors and return one edge per cursor
-    cursors = [None, "A", "B"]
+    remote = "openneuro"
+    cursors = [(remote, None), (remote, "A"), (remote, "B")]
 
-    def mock_fetch_page(cursor):
+    def mock_fetch_page(gql_url, cursor):
         return {"edges": [{"node": {"id": f"id-{cursor or 'root'}"}}], "pageInfo": {}}
 
     monkeypatch.setattr("niquery.query.querying.fetch_page", mock_fetch_page)
@@ -246,23 +249,23 @@ def test_post_with_retry_other_exceptions(monkeypatch, exc_factory, caplog):
 
 
 def test_query_snapshot_files_response_none(monkeypatch, caplog):
-    def mock_post_with_retry(url, headers, payload):
+    def mock_post_with_retry(gql_url, headers, payload):
         return None
 
     monkeypatch.setattr("niquery.query.querying.post_with_retry", mock_post_with_retry)
     with caplog.at_level(logging.WARNING):
-        files = query_snapshot_files("ds000001", "1.0.0")
+        files = query_snapshot_files("mygql_url", "ds000001", "1.0.0")
     assert files == []
     assert any("Empty response" in rec.message for rec in caplog.records)
 
 
 def test_query_snapshot_files_snapshot_none(monkeypatch, caplog):
-    def mock_post_with_retry(url, headers, payload):
+    def mock_post_with_retry(gql_url, headers, payload):
         return DummyResponse(200, {"data": {"snapshot": None}})
 
     monkeypatch.setattr("niquery.query.querying.post_with_retry", mock_post_with_retry)
     with caplog.at_level(logging.WARNING):
-        files = query_snapshot_files("ds000001", "1.0.0")
+        files = query_snapshot_files("mygql_url", "ds000001", "1.0.0")
     assert files == []
     assert any("No snapshot" in rec.message for rec in caplog.records)
 
@@ -280,7 +283,7 @@ def test_query_snapshot_files_ok(monkeypatch):
         return DummyResponse(200, files_payload)
 
     monkeypatch.setattr("niquery.query.querying.post_with_retry", mock_post_with_retry)
-    files = query_snapshot_files("ds000001", "1.0.0")
+    files = query_snapshot_files("mygq_url", "ds000001", "1.0.0")
     assert files == [{"id": "x", "filename": "a", "directory": False}]
 
 
@@ -296,7 +299,7 @@ def test_query_snapshot_tree_recurses(monkeypatch):
     ]
     calls = []
 
-    def mock_query_snapshot_files(ds, tag, tree):
+    def mock_query_snapshot_files(gql_url, ds, tag, tree):
         calls.append(tree or "root")
         if tree is None:
             return root_files
@@ -305,7 +308,7 @@ def test_query_snapshot_tree_recurses(monkeypatch):
         return []
 
     monkeypatch.setattr("niquery.query.querying.query_snapshot_files", mock_query_snapshot_files)
-    out = query_snapshot_tree("ds000001", "1.0.0")
+    out = query_snapshot_tree("mygq_url", "ds000001", "1.0.0")
     # Should include only file entries with fullpath
     fullpaths = sorted(f[FULLPATH] for f in out)
     assert fullpaths == ["rootfile.txt", "sub/subfile.txt"]
@@ -318,52 +321,53 @@ def test_query_snapshot_tree_handles_exception(monkeypatch, caplog):
 
     monkeypatch.setattr("niquery.query.querying.query_snapshot_files", bad_query)
     with caplog.at_level(logging.WARNING):
-        out = query_snapshot_tree("ds000001", "1.0.0")
+        out = query_snapshot_tree("mygq_url", "ds000001", "1.0.0")
     assert out == []
     assert any("Failed to query" in rec.message for rec in caplog.records)
 
 
 def test_query_dataset_files_empty_tag_logs(monkeypatch, caplog):
     with caplog.at_level(logging.WARNING):
-        out = query_dataset_files("ds000001", "NA")
+        out = query_dataset_files("mygq_url", "ds000001", "NA")
     assert out == []
     assert any("Snapshot empty" in rec.message for rec in caplog.records)
 
 
 def test_query_dataset_files_success_and_exception(monkeypatch, caplog):
-    def ok_tree(ds, tag):
+    def ok_tree(gql_url, ds, tag):
         return [
             {ID: "f1", FILENAME: "a.nii.gz", DIRECTORY: False, FULLPATH: "a.nii.gz"},
             {ID: "f2", FILENAME: "b.nii.gz", DIRECTORY: False, FULLPATH: "b.nii.gz"},
         ]
 
-    def bad_tree(ds, tag):
+    def bad_tree(gql_url, ds, tag):
         raise RuntimeError("err")
 
     # Success case
     monkeypatch.setattr("niquery.query.querying.query_snapshot_tree", ok_tree)
-    files = query_dataset_files("ds000001", "1.0.0")
+    files = query_dataset_files("mygq_url", "ds000001", "1.0.0")
     assert len(files) == 2
 
     # Exception case
     monkeypatch.setattr("niquery.query.querying.query_snapshot_tree", bad_tree)
     with caplog.at_level(logging.WARNING):
-        files = query_dataset_files("ds000002", "2.0.0")
+        files = query_dataset_files("mygq_url", "ds000002", "2.0.0")
     assert files == []
     assert any("Post request error" in rec.message for rec in caplog.records)
 
 
 def test_query_datasets_success_empty_and_exception(monkeypatch):
     # DataFrame with three rows
+    remote = "openneuro"
     df = pd.DataFrame(
         [
-            {ID: "ds1", TAG: "1.0.0"},
-            {ID: "ds2", TAG: "2.0.0"},
-            {ID: "ds3", TAG: "3.0.0"},
+            {REMOTE: remote, ID: "ds1", TAG: "1.0.0"},
+            {REMOTE: remote, ID: "ds2", TAG: "2.0.0"},
+            {REMOTE: remote, ID: "ds3", TAG: "3.0.0"},
         ]
     )
 
-    def mock_query_dataset_files(dataset_id, snapshot_tag):
+    def mock_query_dataset_files(gql_url, dataset_id, snapshot_tag):
         if dataset_id == "ds1":
             return [
                 {ID: "f1", FILENAME: "a.nii.gz", DIRECTORY: False, FULLPATH: "a.nii.gz"},
@@ -387,6 +391,6 @@ def test_query_datasets_success_empty_and_exception(monkeypatch):
 
     # Failures for ds2 (empty) and ds3 (exception)
     assert failures == [
-        {DATASETID: "ds2", TAG: "2.0.0"},
-        {DATASETID: "ds3", TAG: "3.0.0"},
+        {REMOTE: remote, DATASETID: "ds2", TAG: "2.0.0"},
+        {REMOTE: remote, DATASETID: "ds3", TAG: "3.0.0"},
     ]

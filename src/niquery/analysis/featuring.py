@@ -35,8 +35,8 @@ from botocore import UNSIGNED  # type: ignore
 from botocore.config import Config  # type: ignore
 from tqdm import tqdm
 
-from niquery.data.remotes import OPENNEURO_BUCKET
-from niquery.utils.attributes import DATASETID, FULLPATH, VOLS
+from niquery.data.remotes import BUCKET, REMOTES
+from niquery.utils.attributes import DATASETID, FULLPATH, REMOTE, VOLS
 
 NBYTES = 512
 BYTE_RANGE = f"bytes=0-{NBYTES}"
@@ -44,8 +44,8 @@ BYTE_RANGE = f"bytes=0-{NBYTES}"
 s3 = boto3.client("s3", config=Config(signature_version=UNSIGNED))
 
 
-def get_nii_timepoints_s3(filename: str) -> int:
-    """Compute the number of timepoints of the provided OpenNeuro NIfTI file.
+def get_nii_timepoints_s3(bucket: str, filename: str) -> int:
+    """Compute the number of timepoints of the provided NIfTI file.
 
     Computes the number of timepoints as the size along the last dimension from
     the header of the response bitstream without actually downloading the entire
@@ -53,6 +53,8 @@ def get_nii_timepoints_s3(filename: str) -> int:
 
     Parameters
     ----------
+    bucket : :obj:`str`
+        S3 bucket.
     filename : :obj:`str`
         NIfTI filename (e.g.
         'ds000149/sub-01/func/sub-01_task-picturemanualresponse_run-01_bold.nii.gz')
@@ -63,7 +65,7 @@ def get_nii_timepoints_s3(filename: str) -> int:
         Number of timepoints.
     """
 
-    response = s3.get_object(Bucket=OPENNEURO_BUCKET, Key=filename, Range=BYTE_RANGE)
+    response = s3.get_object(Bucket=bucket, Key=filename, Range=BYTE_RANGE)
     data = response["Body"].read()
 
     with gzip.GzipFile(fileobj=io.BytesIO(data), mode="rb") as img:
@@ -128,7 +130,9 @@ def extract_bold_features(bold_files: dict, max_workers: int = 8) -> tuple:
             for _, rec in df.iterrows():
                 futures[
                     executor.submit(
-                        get_nii_timepoints_s3, str(Path(dataset_id) / Path(rec[FULLPATH]))
+                        get_nii_timepoints_s3,
+                        REMOTES[rec[REMOTE]][BUCKET],
+                        str(Path(dataset_id) / Path(rec[FULLPATH])),
                     )
                 ] = (dataset_id, rec)
 
@@ -143,7 +147,9 @@ def extract_bold_features(bold_files: dict, max_workers: int = 8) -> tuple:
                 success_results[dataset_id].append(rec_vols)
             except Exception as e:
                 logging.warning(f"Failed to process {dataset_id}:{rec[FULLPATH]}: {e}")
-                failure_results.append({DATASETID: dataset_id, FULLPATH: rec[FULLPATH]})
+                failure_results.append(
+                    {REMOTE: rec[REMOTE], DATASETID: dataset_id, FULLPATH: rec[FULLPATH]}
+                )
 
     # Sort results before returning
     return {

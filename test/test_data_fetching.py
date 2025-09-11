@@ -27,8 +27,8 @@ import pandas as pd
 import pytest
 
 from niquery.data.fetching import fetch_datalad_remote_files
-from niquery.data.remotes import OPENNEURO_DS_TEMPLATE
-from niquery.utils.attributes import DATASETID, FULLPATH
+from niquery.data.remotes import DS_TEMPLATE, REMOTES
+from niquery.utils.attributes import DATASETID, FULLPATH, REMOTE
 
 
 @pytest.fixture
@@ -72,9 +72,10 @@ def mock_datalad(monkeypatch):
 
 def test_fetch_datalad_remote_files(tmp_path, mock_datalad):
     # Test that a new aggregate dataset is created
+    remote = "openneuro"
     df = pd.DataFrame(
         [
-            {DATASETID: "ds000001", FULLPATH: "sub-01/file1.nii.gz"},
+            {REMOTE: remote, DATASETID: "ds000001", FULLPATH: "sub-01/file1.nii.gz"},
         ]
     )
     out_dirname = tmp_path
@@ -90,7 +91,7 @@ def test_fetch_datalad_remote_files(tmp_path, mock_datalad):
     # Test that subdatasets are cloned and saved
     df = pd.DataFrame(
         [
-            {DATASETID: "ds000002", FULLPATH: "sub-02/file2.nii.gz"},
+            {REMOTE: remote, DATASETID: "ds000002", FULLPATH: "sub-02/file2.nii.gz"},
         ]
     )
     out_dirname = tmp_path
@@ -102,7 +103,7 @@ def test_fetch_datalad_remote_files(tmp_path, mock_datalad):
     fetch_datalad_remote_files(df, out_dirname, dataset_name)
 
     dataset_id = df.iloc[len(df) - 1][DATASETID]
-    ds_url = OPENNEURO_DS_TEMPLATE.format(DATASET_ID=dataset_id)
+    ds_url = REMOTES[remote][DS_TEMPLATE].format(DATASET_ID=dataset_id)
     ds_path = tmp_path / dataset_name / dataset_id
     assert any(
         source == ds_url and Path(path) == ds_path for source, path in mock_datalad.cloned_sources
@@ -112,8 +113,8 @@ def test_fetch_datalad_remote_files(tmp_path, mock_datalad):
     # Test fetching files and success/failure reporting
     df = pd.DataFrame(
         [
-            {DATASETID: "ds000003", FULLPATH: "sub-03/success.nii.gz"},
-            {DATASETID: "ds000003", FULLPATH: "sub-03/failure_fail.nii.gz"},
+            {REMOTE: remote, DATASETID: "ds000003", FULLPATH: "sub-03/success.nii.gz"},
+            {REMOTE: remote, DATASETID: "ds000003", FULLPATH: "sub-03/failure_fail.nii.gz"},
         ]
     )
     out_dirname = tmp_path
@@ -129,7 +130,7 @@ def test_fetch_datalad_remote_files(tmp_path, mock_datalad):
     # Test that an existing datalad dataset is not re-created
     df = pd.DataFrame(
         [
-            {DATASETID: "ds000004", FULLPATH: "sub-04/file.nii.gz"},
+            {REMOTE: remote, DATASETID: "ds000004", FULLPATH: "sub-04/file.nii.gz"},
         ]
     )
     out_dirname = tmp_path

@@ -35,6 +35,7 @@ from niquery.utils.attributes import (
     FMRI_MODALITIES,
     HUMAN_SPECIES,
     MODALITIES,
+    REMOTE,
     SPECIES,
     VOLS,
 )
@@ -231,8 +232,10 @@ def filter_on_run_contribution(df: pd.DataFrame, contrib_thr: int, seed: int) ->
         .reset_index(drop=True)
     )
 
-    # Make datasetid column come first
-    return result[[DATASETID] + [c for c in result.columns if c != DATASETID]]
+    # Make the remote column come first, and the datasetid come second
+    return result[
+        [REMOTE, DATASETID] + [c for c in result.columns if c not in (REMOTE, DATASETID)]
+    ]
 
 
 def filter_runs(

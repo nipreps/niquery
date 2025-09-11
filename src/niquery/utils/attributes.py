@@ -39,4 +39,5 @@ FMRI_MODALITIES = {"bold", "fmri", "mri"}
 DATASETID = "datasetid"
 FILENAME = "filename"
 FULLPATH = "fullpath"
+REMOTE = "remote"
 VOLS = "vols"
