@@ -27,7 +27,7 @@ import numpy as np
 import pandas as pd
 
 from niquery.io.utils import (
-    append_modality_to_filename,
+    append_label_to_filename,
     write_dataset_file_lists,
     write_dataset_paths,
     write_dataset_tags,
@@ -37,17 +37,17 @@ from niquery.utils.attributes import DATASETID, FILENAME, FULLPATH, MODALITIES, 
 DSV_SEPARATOR = "\t"
 
 
-def test_append_modality_to_filename():
+def test_append_label_to_filename():
     fname = Path("openneuro_datasets.tsv")
-    modality = "mri"
-    new_fname = append_modality_to_filename(fname, modality)
-    assert new_fname.name == "openneuro_datasets_mri.tsv"
+    label = "relevant"
+    new_fname = append_label_to_filename(fname, label)
+    assert new_fname.name == "openneuro_datasets_relevant.tsv"
     assert isinstance(new_fname, Path)
 
     fname = Path("penneuro_datasets")
-    modality = "pet"
-    new_fname = append_modality_to_filename(fname, modality)
-    assert new_fname.name == "penneuro_datasets_pet"
+    label = "mylabel"
+    new_fname = append_label_to_filename(fname, label)
+    assert new_fname.name == "penneuro_datasets_mylabel"
 
 
 def test_write_dataset_file_lists_creates_tsv(tmp_path):

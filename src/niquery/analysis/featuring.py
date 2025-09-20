@@ -155,14 +155,14 @@ def get_nii_timepoints_url(url: str) -> int:
     return header["dim"][4]
 
 
-def extract_bold_features(bold_files: dict, max_workers: int = 8) -> tuple:
-    """Extract BOLD run features.
+def extract_volume_features(files: dict, max_workers: int = 8) -> tuple:
+    """Extract the number of volumes.
 
-    Extracts the number of timepoints for all BOLD runs in each dataset.
+    Extracts the number of volumes for all files runs in each dataset.
 
     Parameters
     ----------
-    bold_files : :obj:`dict`
+    files : :obj:`dict`
         Dataset records.
     max_workers : :obj:`int`, optional
         Maximum number of parallel threads to use.
@@ -174,12 +174,12 @@ def extract_bold_features(bold_files: dict, max_workers: int = 8) -> tuple:
         list of failed dataset ID and file paths.
     """
 
-    success_results: dict[str, list[pd.Series]] = {dataset_id: [] for dataset_id in bold_files}
+    success_results: dict[str, list[pd.Series]] = {dataset_id: [] for dataset_id in files}
     failure_results = []
 
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = {}
-        for dataset_id, df in bold_files.items():
+        for dataset_id, df in files.items():
             for _, rec in df.iterrows():
                 futures[
                     executor.submit(
@@ -189,9 +189,7 @@ def extract_bold_features(bold_files: dict, max_workers: int = 8) -> tuple:
                     )
                 ] = (dataset_id, rec)
 
-        for future in tqdm(
-            as_completed(futures), total=len(futures), desc="Extracting BOLD timepoint counts"
-        ):
+        for future in tqdm(as_completed(futures), total=len(futures), desc="Extracting features"):
             dataset_id, rec = futures[future]
             try:
                 n_vols = future.result()

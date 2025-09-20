@@ -28,7 +28,7 @@ import pytest
 
 from niquery.analysis.featuring import (
     _get_nii_header_bytes,
-    extract_bold_features,
+    extract_volume_features,
     get_nii_header_s3,
     get_nii_header_url,
     get_nii_timepoints_s3,
@@ -147,7 +147,7 @@ def test_get_nii_timepoints_url(monkeypatch):
         get_nii_timepoints_url("http://example/missing.nii.gz")
 
 
-def test_extract_bold_features(monkeypatch):
+def test_extract_volume_features(monkeypatch):
     # Prepare input dict: two datasets with small DataFrames
     remote = "openneuro"
     df1 = pd.DataFrame(
@@ -171,7 +171,7 @@ def test_extract_bold_features(monkeypatch):
         "niquery.analysis.featuring.get_nii_timepoints_s3", fake_get_nii_timepoints_s3
     )
 
-    success, failures = extract_bold_features(datasets, max_workers=2)
+    success, failures = extract_volume_features(datasets, max_workers=2)
 
     # Success contains ds1 with 2 records and VOLS set, and empty ds2
     assert list(success.keys()) == ["ds1", "ds2"]
