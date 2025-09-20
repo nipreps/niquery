@@ -5,15 +5,20 @@ How to Use
 
 *NiQuery* is a command-line tool for indexing, collecting, analyzing,
 and selecting datasets from a remote neuroimaging data server, such as
-OpenNeuro. The typical workflow consists of five stages:
+OpenNeuro_. The typical workflow consists of five stages:
 
   #. **Index**: Retrieve available datasets and snapshot information
      from the remote server.
   #. **Collect**: Gather per-dataset modality file listings.
   #. **Analyze**: Extract features from collected files.
   #. **Select**: Choose datasets that satisfy specific constraints.
-  #. **Aggregate**: Aggregate into a DataLad dataset the selected
-     datasets.
+  #. **Aggregate**: Aggregate the selected datasets into a DataLad
+     dataset.
+
+The remote server is expected to allow being queried using GraphQL_,
+and the NIfTI files are expected to follow BIDS_ naming conventions
+for filtering purposes. An example of GraphQL_ queries for OpenNeuro_
+can be found at the `OpenNeuro API <https://docs.openneuro.org/api.html#graphql-playground>`__.
 
 Below are example calls to perform the *NiQuery* actions:
 
