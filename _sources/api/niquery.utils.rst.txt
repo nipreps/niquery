@@ -1,0 +1,18 @@
+niquery.utils package
+=====================
+
+.. automodule:: niquery.utils
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   niquery.utils.attributes
+   niquery.utils.decorators
+   niquery.utils.logging
+   niquery.utils.optpckg

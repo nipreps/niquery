@@ -1,0 +1,7 @@
+niquery.analysis.featuring module
+=================================
+
+.. automodule:: niquery.analysis.featuring
+   :members:
+   :undoc-members:
+   :show-inheritance:
