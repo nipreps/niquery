@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html">
 
     <!-- Generated with Sphinx 7.4.7 and Furo 2025.09.25 -->
-        <title>niquery.query.querying - niquery 25.1.0.dev2 documentation</title>
+        <title>niquery.query.querying - niquery 25.1.0.dev4 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=acfd86a5" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=8dab3a3b" />
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">niquery 25.1.0.dev2 documentation</div></a>
+      <a href="../../../index.html"><div class="brand">niquery 25.1.0.dev4 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,14 +182,14 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
     <span class="sidebar-brand-text">niquery</span>
-    <span id="version-slug" class="sidebar-brand-text">25.1.0.dev2</span>
+    <span id="version-slug" class="sidebar-brand-text">25.1.0.dev4</span>
 </a>
 
 <!-- Versions dropdown -->
 <div id="version-menu" class="version-tree">
   <ul>
   <li class="toctree-l1 has-children">
-  <span class="sidebar-brand-text">25.1.0.dev2</span>
+  <span class="sidebar-brand-text">25.1.0.dev4</span>
   <input class="toctree-checkbox" id="toctree-checkbox-v" name="toctree-checkbox-v" role="switch" type="checkbox">
   <label for="toctree-checkbox-v"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label>
   <ul id="v-tags"></ul>
@@ -337,7 +337,7 @@
 <span class="sd">    gql_url : :obj:`str`</span>
 <span class="sd">        GraphQL URL to fetch data from.</span>
 <span class="sd">    after_cursor : :obj:`str`, optional</span>
-<span class="sd">        The pagination cursor indicating where to start. If ``None``, fetches</span>
+<span class="sd">        The pagination cursor indicating where to start. If :obj:`None`, fetches</span>
 <span class="sd">        the first page.</span>
 
 <span class="sd">    Returns</span>
@@ -406,7 +406,7 @@
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    cursors : :obj:`list`</span>
-<span class="sd">        List of remote and cursor tuples, where the first cursor is ``None``</span>
+<span class="sd">        List of remote and cursor tuples, where the first cursor is :obj:`None`</span>
 <span class="sd">        (start of list), and the rest are page markers returned by GraphQL.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -485,7 +485,7 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    :obj:`~pd.DataFrame`</span>
+<span class="sd">    :obj:`~pandas.DataFrame`</span>
 <span class="sd">        A DataFrame with the relevant dataset information, namely &#39;remote&#39;,</span>
 <span class="sd">        &#39;id&#39;, &#39;name&#39;, &#39;species&#39;, &#39;tag&#39;, &#39;dataset_doi&#39;, &#39;modalities&#39;, and</span>
 <span class="sd">        &#39;tasks&#39;.</span>
@@ -545,8 +545,8 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    :obj:`requests.Response` or None</span>
-<span class="sd">        Request response. ``None`` if attempts failed.</span>
+<span class="sd">    :obj:`~requests.Response` or :obj:`None`</span>
+<span class="sd">        Request response. :obj:`None` if attempts failed.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">for</span> <span class="n">attempt</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">retries</span><span class="p">):</span>
@@ -593,7 +593,7 @@
 <span class="sd">    snapshot_tag : :obj:`str`</span>
 <span class="sd">        The tag of the snapshot to query (e.g., &#39;1.0.0&#39;).</span>
 <span class="sd">    tree : :obj:`str`, optional</span>
-<span class="sd">        ID of a directory within the snapshot tree to query; use ``None`` to</span>
+<span class="sd">        ID of a directory within the snapshot tree to query; use :obj:`None` to</span>
 <span class="sd">        start at the root.</span>
 
 <span class="sd">    Returns</span>
@@ -654,7 +654,7 @@
 <span class="sd">    snapshot_tag : :obj:`str`</span>
 <span class="sd">        The tag of the snapshot to query (e.g., &#39;1.0.0&#39;).</span>
 <span class="sd">    tree : :obj:`str`, optional</span>
-<span class="sd">        ID of a directory within the snapshot tree to query; use ``None`` to</span>
+<span class="sd">        ID of a directory within the snapshot tree to query; use :obj:`None` to</span>
 <span class="sd">        start at the root.</span>
 <span class="sd">    parent_path : :obj:`str`, optional</span>
 <span class="sd">        Relative path used to construct full file paths (used during recursion).</span>
@@ -695,7 +695,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Retrieve all files for a given dataset snapshot.</span>
 
 <span class="sd">    This function takes a dataset metadata dictionary (typically a row from a</span>
-<span class="sd">    :obj:`~pd.DataFrame`), extracts the dataset ID and snapshot tag, and</span>
+<span class="sd">    :obj:`~pandas.DataFrame`), extracts the dataset ID and snapshot tag, and</span>
 <span class="sd">    recursively queries all files in the snapshot. If the snapshot tag is</span>
 <span class="sd">    missing or the request fails, an empty list is returned.</span>
 
@@ -742,7 +742,7 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    df : :obj:`~pd.DataFrame`</span>
+<span class="sd">    df : :obj:`~pandas.DataFrame`</span>
 <span class="sd">        Dataset records.</span>
 <span class="sd">    max_workers : :obj:`int`, optional</span>
 <span class="sd">        Maximum number of parallel threads to use.</span>
@@ -823,7 +823,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=4cd4e0ac"></script>
+</div><script src="../../../_static/documentation_options.js?v=2325f478"></script>
     <script src="../../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>

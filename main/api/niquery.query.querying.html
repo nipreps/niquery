@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="next" title="niquery.utils package" href="niquery.utils.html"><link rel="prev" title="niquery.query package" href="niquery.query.html">
 
     <!-- Generated with Sphinx 7.4.7 and Furo 2025.09.25 -->
-        <title>niquery.query.querying module - niquery 25.1.0.dev2 documentation</title>
+        <title>niquery.query.querying module - niquery 25.1.0.dev4 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=acfd86a5" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=8dab3a3b" />
@@ -162,7 +162,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">niquery 25.1.0.dev2 documentation</div></a>
+      <a href="../index.html"><div class="brand">niquery 25.1.0.dev4 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -183,14 +183,14 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
     <span class="sidebar-brand-text">niquery</span>
-    <span id="version-slug" class="sidebar-brand-text">25.1.0.dev2</span>
+    <span id="version-slug" class="sidebar-brand-text">25.1.0.dev4</span>
 </a>
 
 <!-- Versions dropdown -->
 <div id="version-menu" class="version-tree">
   <ul>
   <li class="toctree-l1 has-children">
-  <span class="sidebar-brand-text">25.1.0.dev2</span>
+  <span class="sidebar-brand-text">25.1.0.dev4</span>
   <input class="toctree-checkbox" id="toctree-checkbox-v" name="toctree-checkbox-v" role="switch" type="checkbox">
   <label for="toctree-checkbox-v"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label>
   <ul id="v-tags"></ul>
@@ -301,7 +301,7 @@
 ‘tasks’.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DataFrame</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -315,7 +315,7 @@
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>gql_url</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></a>) – GraphQL URL to fetch data from.</p></li>
-<li><p><strong>after_cursor</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></a>, optional) – The pagination cursor indicating where to start. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, fetches
+<li><p><strong>after_cursor</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></a>, optional) – The pagination cursor indicating where to start. If <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>, fetches
 the first page.</p></li>
 </ul>
 </dd>
@@ -363,7 +363,7 @@ later.</p>
 <dd class="field-odd"><p><strong>remote</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></a>) – Name of the remote to fetch data from.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>cursors</strong> – List of remote and cursor tuples, where the first cursor is <code class="docutils literal notranslate"><span class="pre">None</span></code>
+<dd class="field-even"><p><strong>cursors</strong> – List of remote and cursor tuples, where the first cursor is <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>
 (start of list), and the rest are page markers returned by GraphQL.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -389,10 +389,10 @@ wait time computed as <span class="math notranslate nohighlight">\(backoff^attem
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Request response. <code class="docutils literal notranslate"><span class="pre">None</span></code> if attempts failed.</p>
+<dd class="field-even"><p>Request response. <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a> if attempts failed.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://requests.readthedocs.io/en/latest/api/#requests.Response" title="(in Requests v2.32.5)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">requests.Response</span></code></a> or None</p>
+<dd class="field-odd"><p><a class="reference external" href="https://requests.readthedocs.io/en/latest/api/#requests.Response" title="(in Requests v2.32.5)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Response</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -402,7 +402,7 @@ wait time computed as <span class="math notranslate nohighlight">\(backoff^attem
 <span class="sig-prename descclassname"><span class="pre">niquery.query.querying.</span></span><span class="sig-name descname"><span class="pre">query_dataset_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gql_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">snapshot_tag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a></span></span><a class="reference internal" href="../_modules/niquery/query/querying.html#query_dataset_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#niquery.query.querying.query_dataset_files" title="Link to this definition">¶</a></dt>
 <dd><p>Retrieve all files for a given dataset snapshot.</p>
 <p>This function takes a dataset metadata dictionary (typically a row from a
-<code class="xref py py-obj docutils literal notranslate"><span class="pre">DataFrame</span></code>), extracts the dataset ID and snapshot tag, and
+<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DataFrame</span></code></a>), extracts the dataset ID and snapshot tag, and
 recursively queries all files in the snapshot. If the snapshot tag is
 missing or the request fails, an empty list is returned.</p>
 <dl class="field-list simple">
@@ -436,7 +436,7 @@ and ‘fullpath’.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>df</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Dataset records.</p></li>
+<li><p><strong>df</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DataFrame</span></code></a>) – Dataset records.</p></li>
 <li><p><strong>max_workers</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">int</span></code></a>, optional) – Maximum number of parallel threads to use.</p></li>
 </ul>
 </dd>
@@ -460,7 +460,7 @@ list of failed dataset ID and snapshot tags.</p>
 <li><p><strong>gql_url</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></a>) – GraphQL URL to query data from.</p></li>
 <li><p><strong>dataset_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></a>) – The dataset ID (e.g., ‘ds000001’).</p></li>
 <li><p><strong>snapshot_tag</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></a>) – The tag of the snapshot to query (e.g., ‘1.0.0’).</p></li>
-<li><p><strong>tree</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></a>, optional) – ID of a directory within the snapshot tree to query; use <code class="docutils literal notranslate"><span class="pre">None</span></code> to
+<li><p><strong>tree</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></a>, optional) – ID of a directory within the snapshot tree to query; use <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a> to
 start at the root.</p></li>
 </ul>
 </dd>
@@ -484,7 +484,7 @@ start at the root.</p></li>
 <li><p><strong>gql_url</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></a>) – GraphQL URL to query data from.</p></li>
 <li><p><strong>dataset_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></a>) – The dataset ID (e.g., ‘ds000001’).</p></li>
 <li><p><strong>snapshot_tag</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></a>) – The tag of the snapshot to query (e.g., ‘1.0.0’).</p></li>
-<li><p><strong>tree</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></a>, optional) – ID of a directory within the snapshot tree to query; use <code class="docutils literal notranslate"><span class="pre">None</span></code> to
+<li><p><strong>tree</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></a>, optional) – ID of a directory within the snapshot tree to query; use <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a> to
 start at the root.</p></li>
 <li><p><strong>parent_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></a>, optional) – Relative path used to construct full file paths (used during recursion).</p></li>
 </ul>
@@ -578,7 +578,7 @@ key that shows the complete path from the root.</p>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=4cd4e0ac"></script>
+</div><script src="../_static/documentation_options.js?v=2325f478"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=46bd48cc"></script>

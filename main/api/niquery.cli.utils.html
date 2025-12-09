@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="next" title="niquery.data package" href="niquery.data.html"><link rel="prev" title="niquery.cli.run module" href="niquery.cli.run.html">
 
     <!-- Generated with Sphinx 7.4.7 and Furo 2025.09.25 -->
-        <title>niquery.cli.utils module - niquery 25.1.0.dev2 documentation</title>
+        <title>niquery.cli.utils module - niquery 25.1.0.dev4 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=acfd86a5" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=8dab3a3b" />
@@ -162,7 +162,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">niquery 25.1.0.dev2 documentation</div></a>
+      <a href="../index.html"><div class="brand">niquery 25.1.0.dev4 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -183,14 +183,14 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
     <span class="sidebar-brand-text">niquery</span>
-    <span id="version-slug" class="sidebar-brand-text">25.1.0.dev2</span>
+    <span id="version-slug" class="sidebar-brand-text">25.1.0.dev4</span>
 </a>
 
 <!-- Versions dropdown -->
 <div id="version-menu" class="version-tree">
   <ul>
   <li class="toctree-l1 has-children">
-  <span class="sidebar-brand-text">25.1.0.dev2</span>
+  <span class="sidebar-brand-text">25.1.0.dev4</span>
   <input class="toctree-checkbox" id="toctree-checkbox-v" name="toctree-checkbox-v" role="switch" type="checkbox">
   <label for="toctree-checkbox-v"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label>
   <ul id="v-tags"></ul>
@@ -282,7 +282,7 @@
 <span id="niquery-cli-utils-module"></span><h1>niquery.cli.utils module<a class="headerlink" href="#module-niquery.cli.utils" title="Link to this heading">¶</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="niquery.cli.utils.force_output">
-<span class="sig-prename descclassname"><span class="pre">niquery.cli.utils.</span></span><span class="sig-name descname"><span class="pre">force_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.14)"><span class="pre">Callable</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.14)"><span class="pre">Callable</span></a></span></span><a class="reference internal" href="../_modules/niquery/cli/utils.html#force_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#niquery.cli.utils.force_output" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">niquery.cli.utils.</span></span><span class="sig-name descname"><span class="pre">force_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.14)"><span class="pre">Callable</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.14)"><span class="pre">Callable</span></a></span></span><a class="reference internal" href="../_modules/niquery/cli/utils.html#force_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#niquery.cli.utils.force_output" title="Link to this definition">¶</a></dt>
 <dd><p>Create a click option to add the <code class="docutils literal notranslate"><span class="pre">--force</span> <span class="pre">/</span> <span class="pre">-f</span></code> flag to a command.</p>
 <p>Creates a Click command decorator to add an option that can be used to
 enable or disable the ability to forcefully overwrite existing output files,
@@ -290,13 +290,13 @@ for example. The value of this option is stored in the Click context object
 and can be accessed during the command execution.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>f</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">Callable</span></code>) – The function to be wrapped with the Click option.</p>
+<dd class="field-odd"><p><strong>f</strong> (<a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Callable</span></code></a>) – The function to be wrapped with the Click option.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The decorated function with the <code class="docutils literal notranslate"><span class="pre">--force</span> <span class="pre">/</span> <span class="pre">-f</span></code> flag.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Callable</span></code></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Callable</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -307,12 +307,12 @@ and can be accessed during the command execution.</p>
 <dd><p>Verify whether the output path already exists or is non-empty.</p>
 <p>Verifies whether a path exists (if a file) or whether it is not empty
 (if a directory) it; raise an error if it exists/not empty and <code class="docutils literal notranslate"><span class="pre">overwrite</span></code>
-is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+is <a class="reference external" href="https://docs.python.org/3/library/constants.html#False" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">False</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>path</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">Path</span></code>) – Filename.</p></li>
-<li><p><strong>overwrite</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code></a>) – <code class="docutils literal notranslate"><span class="pre">True</span></code> to allow overwriting the file/writing to a non-empty directory.</p></li>
+<li><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Path</span></code></a>) – Filename.</p></li>
+<li><p><strong>overwrite</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code></a>) – <a class="reference external" href="https://docs.python.org/3/library/constants.html#True" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code></a> to allow overwriting the file/writing to a non-empty directory.</p></li>
 </ul>
 </dd>
 </dl>
@@ -389,7 +389,7 @@ is <code class="docutils literal notranslate"><span class="pre">False</span></co
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=4cd4e0ac"></script>
+</div><script src="../_static/documentation_options.js?v=2325f478"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=46bd48cc"></script>

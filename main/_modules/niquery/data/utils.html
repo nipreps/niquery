@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html">
 
     <!-- Generated with Sphinx 7.4.7 and Furo 2025.09.25 -->
-        <title>niquery.data.utils - niquery 25.1.0.dev2 documentation</title>
+        <title>niquery.data.utils - niquery 25.1.0.dev4 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=acfd86a5" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=8dab3a3b" />
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">niquery 25.1.0.dev2 documentation</div></a>
+      <a href="../../../index.html"><div class="brand">niquery 25.1.0.dev4 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,14 +182,14 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
     <span class="sidebar-brand-text">niquery</span>
-    <span id="version-slug" class="sidebar-brand-text">25.1.0.dev2</span>
+    <span id="version-slug" class="sidebar-brand-text">25.1.0.dev4</span>
 </a>
 
 <!-- Versions dropdown -->
 <div id="version-menu" class="version-tree">
   <ul>
   <li class="toctree-l1 has-children">
-  <span class="sidebar-brand-text">25.1.0.dev2</span>
+  <span class="sidebar-brand-text">25.1.0.dev4</span>
   <input class="toctree-checkbox" id="toctree-checkbox-v" name="toctree-checkbox-v" role="switch" type="checkbox">
   <label for="toctree-checkbox-v"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label>
   <ul id="v-tags"></ul>
@@ -297,7 +297,6 @@
 
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Pattern</span>
 
 
 <div class="viewcode-block" id="filter_non_conforming_ds">
@@ -310,7 +309,7 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    dirname : :obj:`Path`</span>
+<span class="sd">    dirname : :obj:`~pathlib.Path`</span>
 <span class="sd">        Directory where dataset files are located.</span>
 
 <span class="sd">    Returns</span>
@@ -331,7 +330,7 @@
 
 <div class="viewcode-block" id="bids_dataset_name_pattern">
 <a class="viewcode-back" href="../../../api/niquery.data.utils.html#niquery.data.utils.bids_dataset_name_pattern">[docs]</a>
-<span class="k">def</span> <span class="nf">bids_dataset_name_pattern</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Pattern</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="k">def</span> <span class="nf">bids_dataset_name_pattern</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">re</span><span class="o">.</span><span class="n">Pattern</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Return the compiled regex pattern to identify BIDS dataset filenames.</span>
 
 <span class="sd">    Compiles a specific regex pattern designed to match filenames associated</span>
@@ -342,7 +341,7 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    :obj:`Pattern[str]`</span>
+<span class="sd">    :obj:`~re.Pattern[str]`</span>
 <span class="sd">        A compiled regex pattern matching BIDS dataset filenames.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -380,7 +379,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=4cd4e0ac"></script>
+</div><script src="../../../_static/documentation_options.js?v=2325f478"></script>
     <script src="../../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>

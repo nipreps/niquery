@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="next" title="niquery.utils.logging module" href="niquery.utils.logging.html"><link rel="prev" title="niquery.utils.attributes module" href="niquery.utils.attributes.html">
 
     <!-- Generated with Sphinx 7.4.7 and Furo 2025.09.25 -->
-        <title>niquery.utils.decorators module - niquery 25.1.0.dev2 documentation</title>
+        <title>niquery.utils.decorators module - niquery 25.1.0.dev4 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=acfd86a5" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=8dab3a3b" />
@@ -162,7 +162,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">niquery 25.1.0.dev2 documentation</div></a>
+      <a href="../index.html"><div class="brand">niquery 25.1.0.dev4 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -183,14 +183,14 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
     <span class="sidebar-brand-text">niquery</span>
-    <span id="version-slug" class="sidebar-brand-text">25.1.0.dev2</span>
+    <span id="version-slug" class="sidebar-brand-text">25.1.0.dev4</span>
 </a>
 
 <!-- Versions dropdown -->
 <div id="version-menu" class="version-tree">
   <ul>
   <li class="toctree-l1 has-children">
-  <span class="sidebar-brand-text">25.1.0.dev2</span>
+  <span class="sidebar-brand-text">25.1.0.dev4</span>
   <input class="toctree-checkbox" id="toctree-checkbox-v" name="toctree-checkbox-v" role="switch" type="checkbox">
   <label for="toctree-checkbox-v"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label>
   <ul id="v-tags"></ul>
@@ -286,11 +286,11 @@
 <dd><p>Decorator for functions that require DataLad.</p>
 <p>Checks whether DataLad and its required dependencies are available in the
 environment: if DataLad or its required system dependencies are not
-available, calling the decorated function will raise a <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RuntimeError</span></code></a>
+available, calling the decorated function will raise a <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.14)"><code class="xref py py-exc docutils literal notranslate"><span class="pre">RuntimeError</span></code></a>
 with an informative message.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>func</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">Callable</span></code>) – The function to be decorated. This function should depend on DataLad
+<dd class="field-odd"><p><strong>func</strong> (<a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Callable</span></code></a>) – The function to be decorated. This function should depend on DataLad
 being installed and the <code class="docutils literal notranslate"><span class="pre">git</span></code> and <code class="docutils literal notranslate"><span class="pre">git-annex</span></code> system tools being
 available.</p>
 </dd>
@@ -298,20 +298,19 @@ available.</p>
 <dd class="field-even"><p>The wrapped function, which will only execute if DataLad is available.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Callable</span></code></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Callable</span></code></a></p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><ul class="simple">
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.14)"><strong>RuntimeError</strong></a> – If DataLad or its dependencies are not available when the decorated
-    function is called.</p></li>
-<li><p><strong>Usage</strong> – </p></li>
-<li><p><strong>-----</strong> – </p></li>
-<li><p><strong>&#64;require_datalad</strong> – </p></li>
-<li><p><strong>def my_function</strong><strong>(</strong><strong>...</strong><strong>)</strong><strong>:</strong> – <p>…</p>
-</p></li>
-</ul>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.14)"><strong>RuntimeError</strong></a> – If DataLad or its dependencies are not available when the decorated
+    function is called.</p>
 </dd>
 </dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@require_datalad</span>
+<span class="k">def</span> <span class="nf">my_function</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <p><a class="reference internal" href="niquery.utils.optpckg.html#niquery.utils.optpckg.have_datalad" title="niquery.utils.optpckg.have_datalad"><code class="xref py py-obj docutils literal notranslate"><span class="pre">have_datalad</span></code></a></p>
@@ -321,34 +320,33 @@ available.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="niquery.utils.decorators.require_datalad_click">
 <span class="sig-prename descclassname"><span class="pre">niquery.utils.decorators.</span></span><span class="sig-name descname"><span class="pre">require_datalad_click</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">F</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">F</span></span></span><a class="reference internal" href="../_modules/niquery/utils/decorators.html#require_datalad_click"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#niquery.utils.decorators.require_datalad_click" title="Link to this definition">¶</a></dt>
-<dd><p>Decorator for <code class="docutils literal notranslate"><span class="pre">click`</span></code> command functions that require DataLad.</p>
+<dd><p>Decorator for click command functions that require DataLad.</p>
 <p>If DataLad or its required system dependencies are not available, calling
-the decorated function will raise a <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RuntimeError</span></code></a> with an informative
+the decorated function will raise a <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.14)"><code class="xref py py-exc docutils literal notranslate"><span class="pre">RuntimeError</span></code></a> with an informative
 message.</p>
 <p>Checks whether DataLad and its required dependencies are available in the
 environment: if DataLad or its required system dependencies are not
-available, it raises a <code class="xref py py-obj docutils literal notranslate"><span class="pre">clickClickException</span></code> with a descriptive error
+available, it raises a <code class="xref py py-exc docutils literal notranslate"><span class="pre">ClickException</span></code> with a descriptive error
 message.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The wrapped <code class="docutils literal notranslate"><span class="pre">click</span></code> command function, which will only execute if
-DataLad is available.</p>
+<dd class="field-odd"><p>The wrapped click command function, which will only execute if DataLad
+is available.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Callable</span></code></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Callable</span></code></a></p>
 </dd>
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>clickClickException</strong> – If DataLad or its dependencies are not available.</p></li>
-<li><p><strong>Usage</strong> – </p></li>
-<li><p><strong>-----</strong> – </p></li>
-<li><p><strong>&#64;click.command</strong><strong>(</strong><strong>)</strong> – </p></li>
-<li><p><strong>&#64;require_datalad_click</strong> – </p></li>
-<li><p><strong>def my_command</strong><strong>(</strong><strong>)</strong><strong>:</strong> – <p>…</p>
-</p></li>
-</ul>
+<dd class="field-odd"><p><strong>ClickException</strong> – If DataLad or its dependencies are not available.</p>
 </dd>
 </dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@click</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
+<span class="nd">@require_datalad_click</span>
+<span class="k">def</span> <span class="nf">my_command</span><span class="p">():</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <p><a class="reference internal" href="#niquery.utils.decorators.require_datalad" title="niquery.utils.decorators.require_datalad"><code class="xref py py-obj docutils literal notranslate"><span class="pre">require_datalad</span></code></a></p>
@@ -426,7 +424,7 @@ DataLad is available.</p>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=4cd4e0ac"></script>
+</div><script src="../_static/documentation_options.js?v=2325f478"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=46bd48cc"></script>

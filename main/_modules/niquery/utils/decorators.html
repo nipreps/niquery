@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html">
 
     <!-- Generated with Sphinx 7.4.7 and Furo 2025.09.25 -->
-        <title>niquery.utils.decorators - niquery 25.1.0.dev2 documentation</title>
+        <title>niquery.utils.decorators - niquery 25.1.0.dev4 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=acfd86a5" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=8dab3a3b" />
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">niquery 25.1.0.dev2 documentation</div></a>
+      <a href="../../../index.html"><div class="brand">niquery 25.1.0.dev4 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,14 +182,14 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
     <span class="sidebar-brand-text">niquery</span>
-    <span id="version-slug" class="sidebar-brand-text">25.1.0.dev2</span>
+    <span id="version-slug" class="sidebar-brand-text">25.1.0.dev4</span>
 </a>
 
 <!-- Versions dropdown -->
 <div id="version-menu" class="version-tree">
   <ul>
   <li class="toctree-l1 has-children">
-  <span class="sidebar-brand-text">25.1.0.dev2</span>
+  <span class="sidebar-brand-text">25.1.0.dev4</span>
   <input class="toctree-checkbox" id="toctree-checkbox-v" name="toctree-checkbox-v" role="switch" type="checkbox">
   <label for="toctree-checkbox-v"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label>
   <ul id="v-tags"></ul>
@@ -296,7 +296,8 @@
 <span class="c1">#</span>
 
 <span class="kn">import</span> <span class="nn">functools</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">cast</span>
+<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Callable</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">cast</span>
 
 <span class="kn">import</span> <span class="nn">click</span>
 
@@ -314,32 +315,34 @@
 
 <span class="sd">    Checks whether DataLad and its required dependencies are available in the</span>
 <span class="sd">    environment: if DataLad or its required system dependencies are not</span>
-<span class="sd">    available, calling the decorated function will raise a :obj:`RuntimeError`</span>
+<span class="sd">    available, calling the decorated function will raise a :exc:`RuntimeError`</span>
 <span class="sd">    with an informative message.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    func : :obj:`Callable`</span>
+<span class="sd">    func : :obj:`~collections.abc.Callable`</span>
 <span class="sd">        The function to be decorated. This function should depend on DataLad</span>
 <span class="sd">        being installed and the ``git`` and ``git-annex`` system tools being</span>
 <span class="sd">        available.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    :obj:`Callable`</span>
+<span class="sd">    :obj:`~collections.abc.Callable`</span>
 <span class="sd">        The wrapped function, which will only execute if DataLad is available.</span>
 
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
-<span class="sd">    :obj:`RuntimeError`</span>
+<span class="sd">    :exc:`RuntimeError`</span>
 <span class="sd">        If DataLad or its dependencies are not available when the decorated</span>
 <span class="sd">        function is called.</span>
 
-<span class="sd">    Usage</span>
-<span class="sd">    -----</span>
-<span class="sd">    @require_datalad</span>
-<span class="sd">    def my_function(...):</span>
-<span class="sd">        ...</span>
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        @require_datalad</span>
+<span class="sd">        def my_function(...):</span>
+<span class="sd">            ...</span>
 
 <span class="sd">    See Also</span>
 <span class="sd">    --------</span>
@@ -359,34 +362,36 @@
 <div class="viewcode-block" id="require_datalad_click">
 <a class="viewcode-back" href="../../../api/niquery.utils.decorators.html#niquery.utils.decorators.require_datalad_click">[docs]</a>
 <span class="k">def</span> <span class="nf">require_datalad_click</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">F</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">F</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Decorator for ``click``` command functions that require DataLad.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Decorator for click command functions that require DataLad.</span>
 
 <span class="sd">    If DataLad or its required system dependencies are not available, calling</span>
-<span class="sd">    the decorated function will raise a :obj:`RuntimeError` with an informative</span>
+<span class="sd">    the decorated function will raise a :exc:`RuntimeError` with an informative</span>
 <span class="sd">    message.</span>
 
 <span class="sd">    Checks whether DataLad and its required dependencies are available in the</span>
 <span class="sd">    environment: if DataLad or its required system dependencies are not</span>
-<span class="sd">    available, it raises a :obj:`clickClickException` with a descriptive error</span>
+<span class="sd">    available, it raises a :exc:`~click.ClickException` with a descriptive error</span>
 <span class="sd">    message.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    :obj:`Callable`</span>
-<span class="sd">        The wrapped ``click`` command function, which will only execute if</span>
-<span class="sd">        DataLad is available.</span>
+<span class="sd">    :obj:`~collections.abc.Callable`</span>
+<span class="sd">        The wrapped click command function, which will only execute if DataLad</span>
+<span class="sd">        is available.</span>
 
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
-<span class="sd">    :obj:`clickClickException`</span>
+<span class="sd">    :exc:`~click.ClickException`</span>
 <span class="sd">        If DataLad or its dependencies are not available.</span>
 
-<span class="sd">    Usage</span>
-<span class="sd">    -----</span>
-<span class="sd">    @click.command()</span>
-<span class="sd">    @require_datalad_click</span>
-<span class="sd">    def my_command():</span>
-<span class="sd">        ...</span>
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        @click.command()</span>
+<span class="sd">        @require_datalad_click</span>
+<span class="sd">        def my_command():</span>
+<span class="sd">            ...</span>
 
 <span class="sd">    See Also</span>
 <span class="sd">    --------</span>
@@ -434,7 +439,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=4cd4e0ac"></script>
+</div><script src="../../../_static/documentation_options.js?v=2325f478"></script>
     <script src="../../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>
