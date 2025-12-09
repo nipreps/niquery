@@ -1,0 +1,7 @@
+niquery.cli.run module
+======================
+
+.. automodule:: niquery.cli.run
+   :members:
+   :undoc-members:
+   :show-inheritance:

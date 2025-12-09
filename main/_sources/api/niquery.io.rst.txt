@@ -1,0 +1,15 @@
+niquery.io package
+==================
+
+.. automodule:: niquery.io
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   niquery.io.utils
