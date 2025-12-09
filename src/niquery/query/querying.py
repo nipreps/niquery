@@ -61,7 +61,7 @@ def fetch_page(gql_url: str, after_cursor: str | None = None) -> dict:
     gql_url : :obj:`str`
         GraphQL URL to fetch data from.
     after_cursor : :obj:`str`, optional
-        The pagination cursor indicating where to start. If ``None``, fetches
+        The pagination cursor indicating where to start. If :obj:`None`, fetches
         the first page.
 
     Returns
@@ -127,7 +127,7 @@ def get_cursors(remote: str) -> list:
     Returns
     -------
     cursors : :obj:`list`
-        List of remote and cursor tuples, where the first cursor is ``None``
+        List of remote and cursor tuples, where the first cursor is :obj:`None`
         (start of list), and the rest are page markers returned by GraphQL.
     """
 
@@ -200,7 +200,7 @@ def edges_to_dataframe(edges: list) -> pd.DataFrame:
 
     Returns
     -------
-    :obj:`~pd.DataFrame`
+    :obj:`~pandas.DataFrame`
         A DataFrame with the relevant dataset information, namely 'remote',
         'id', 'name', 'species', 'tag', 'dataset_doi', 'modalities', and
         'tasks'.
@@ -257,8 +257,8 @@ def post_with_retry(
 
     Returns
     -------
-    :obj:`requests.Response` or None
-        Request response. ``None`` if attempts failed.
+    :obj:`~requests.Response` or :obj:`None`
+        Request response. :obj:`None` if attempts failed.
     """
 
     for attempt in range(retries):
@@ -302,7 +302,7 @@ def query_snapshot_files(
     snapshot_tag : :obj:`str`
         The tag of the snapshot to query (e.g., '1.0.0').
     tree : :obj:`str`, optional
-        ID of a directory within the snapshot tree to query; use ``None`` to
+        ID of a directory within the snapshot tree to query; use :obj:`None` to
         start at the root.
 
     Returns
@@ -360,7 +360,7 @@ def query_snapshot_tree(
     snapshot_tag : :obj:`str`
         The tag of the snapshot to query (e.g., '1.0.0').
     tree : :obj:`str`, optional
-        ID of a directory within the snapshot tree to query; use ``None`` to
+        ID of a directory within the snapshot tree to query; use :obj:`None` to
         start at the root.
     parent_path : :obj:`str`, optional
         Relative path used to construct full file paths (used during recursion).
@@ -398,7 +398,7 @@ def query_dataset_files(gql_url: str, dataset_id: str, snapshot_tag: str) -> lis
     """Retrieve all files for a given dataset snapshot.
 
     This function takes a dataset metadata dictionary (typically a row from a
-    :obj:`~pd.DataFrame`), extracts the dataset ID and snapshot tag, and
+    :obj:`~pandas.DataFrame`), extracts the dataset ID and snapshot tag, and
     recursively queries all files in the snapshot. If the snapshot tag is
     missing or the request fails, an empty list is returned.
 
@@ -442,7 +442,7 @@ def query_datasets(df: pd.DataFrame, max_workers: int = 8) -> tuple:
 
     Parameters
     ----------
-    df : :obj:`~pd.DataFrame`
+    df : :obj:`~pandas.DataFrame`
         Dataset records.
     max_workers : :obj:`int`, optional
         Maximum number of parallel threads to use.

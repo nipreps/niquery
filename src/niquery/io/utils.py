@@ -31,14 +31,14 @@ def append_label_to_filename(in_filename: Path, label: str) -> Path:
 
     Parameters
     ----------
-    in_filename : :obj:`Path`
+    in_filename : :obj:`~pathlib.Path`
         Filename.
     label : :obj:`str`
         Label tag.
 
-    Parameters
-    ----------
-    :obj:`Path`
+    Returns
+    -------
+    :obj:`~pathlib.Path`
         Composed filename.
     """
 
@@ -55,7 +55,7 @@ def write_dataset_file_lists(file_dict: dict, dirname: Path, sep: str) -> None:
     ----------
     file_dict: :obj:`dict`
         A mapping from dataset ID to a list of file metadata dicts.
-    dirname : :obj:`Path`
+    dirname : :obj:`~pathlib.Path`
         Directory where TSV files will be written.
     sep : :obj:`str`
         Separator.
@@ -78,7 +78,7 @@ def write_dataset_paths(dataset_paths: list, fname: Path, sep: str) -> None:
     ----------
     dataset_paths : :obj:`list`
         Dictionaries of dataset ID and fullpath.
-    fname : :obj:`Path`
+    fname : :obj:`~pathlib.Path`
         Filename.
     sep : :obj:`str`
         Separator.
@@ -95,7 +95,7 @@ def write_dataset_tags(dataset_tags: list, fname: Path, sep: str) -> None:
     ----------
     dataset_tags : :obj:`list`
         Dictionaries of dataset ID and snapshot tags.
-    fname : :obj:`Path`
+    fname : :obj:`~pathlib.Path`
         Filename.
     sep : :obj:`str`
         Separator.

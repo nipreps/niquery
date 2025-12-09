@@ -49,10 +49,10 @@ def fetch_datalad_remote_files(df, out_dirname, dataset_name) -> tuple:
 
     Parameters
     ----------
-    df : :obj:`~pd.DataFrame`
+    df : :obj:`~pandas.DataFrame`
         Table containing at least 'remote', 'datasetid', and 'fullpath' columns.
         Each row corresponds to a file to be fetched.
-    out_dirname : :obj:`Path`
+    out_dirname : :obj:`~pathlib.Path`
         Output directory where the datasets will be cloned and files stored.
     dataset_name : :obj:`str`
         Name of the dataset.

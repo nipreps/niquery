@@ -23,7 +23,6 @@
 
 import re
 from pathlib import Path
-from typing import Pattern
 
 
 def filter_non_conforming_ds(dirname: Path) -> dict:
@@ -34,7 +33,7 @@ def filter_non_conforming_ds(dirname: Path) -> dict:
 
     Parameters
     ----------
-    dirname : :obj:`Path`
+    dirname : :obj:`~pathlib.Path`
         Directory where dataset files are located.
 
     Returns
@@ -52,7 +51,7 @@ def filter_non_conforming_ds(dirname: Path) -> dict:
     }
 
 
-def bids_dataset_name_pattern() -> Pattern[str]:
+def bids_dataset_name_pattern() -> re.Pattern[str]:
     r"""Return the compiled regex pattern to identify BIDS dataset filenames.
 
     Compiles a specific regex pattern designed to match filenames associated
@@ -63,7 +62,7 @@ def bids_dataset_name_pattern() -> Pattern[str]:
 
     Returns
     -------
-    :obj:`Pattern[str]`
+    :obj:`~re.Pattern[str]`
         A compiled regex pattern matching BIDS dataset filenames.
     """
 

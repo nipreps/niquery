@@ -22,7 +22,8 @@
 #
 
 import functools
-from typing import Any, Callable, TypeVar, cast
+from collections.abc import Callable
+from typing import Any, TypeVar, cast
 
 import click
 
@@ -38,32 +39,34 @@ def require_datalad(func: F) -> F:
 
     Checks whether DataLad and its required dependencies are available in the
     environment: if DataLad or its required system dependencies are not
-    available, calling the decorated function will raise a :obj:`RuntimeError`
+    available, calling the decorated function will raise a :exc:`RuntimeError`
     with an informative message.
 
     Parameters
     ----------
-    func : :obj:`Callable`
+    func : :obj:`~collections.abc.Callable`
         The function to be decorated. This function should depend on DataLad
         being installed and the ``git`` and ``git-annex`` system tools being
         available.
 
     Returns
     -------
-    :obj:`Callable`
+    :obj:`~collections.abc.Callable`
         The wrapped function, which will only execute if DataLad is available.
 
     Raises
     ------
-    :obj:`RuntimeError`
+    :exc:`RuntimeError`
         If DataLad or its dependencies are not available when the decorated
         function is called.
 
-    Usage
-    -----
-    @require_datalad
-    def my_function(...):
-        ...
+    Examples
+    --------
+    .. code-block:: python
+
+        @require_datalad
+        def my_function(...):
+            ...
 
     See Also
     --------
@@ -80,34 +83,36 @@ def require_datalad(func: F) -> F:
 
 
 def require_datalad_click(func: F) -> F:
-    """Decorator for ``click``` command functions that require DataLad.
+    """Decorator for click command functions that require DataLad.
 
     If DataLad or its required system dependencies are not available, calling
-    the decorated function will raise a :obj:`RuntimeError` with an informative
+    the decorated function will raise a :exc:`RuntimeError` with an informative
     message.
 
     Checks whether DataLad and its required dependencies are available in the
     environment: if DataLad or its required system dependencies are not
-    available, it raises a :obj:`clickClickException` with a descriptive error
+    available, it raises a :exc:`~click.ClickException` with a descriptive error
     message.
 
     Returns
     -------
-    :obj:`Callable`
-        The wrapped ``click`` command function, which will only execute if
-        DataLad is available.
+    :obj:`~collections.abc.Callable`
+        The wrapped click command function, which will only execute if DataLad
+        is available.
 
     Raises
     ------
-    :obj:`clickClickException`
+    :exc:`~click.ClickException`
         If DataLad or its dependencies are not available.
 
-    Usage
-    -----
-    @click.command()
-    @require_datalad_click
-    def my_command():
-        ...
+    Examples
+    --------
+    .. code-block:: python
+
+        @click.command()
+        @require_datalad_click
+        def my_command():
+            ...
 
     See Also
     --------

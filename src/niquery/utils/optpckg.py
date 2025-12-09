@@ -32,8 +32,8 @@ def have_datalad() -> bool:
     Returns
     -------
     :obj:`bool`
-        True if DataLad and its required system dependencies are available,
-        False otherwise.
+        :obj:`True` if DataLad and its required system dependencies are
+        available, :obj:`False` otherwise.
     """
 
     try:

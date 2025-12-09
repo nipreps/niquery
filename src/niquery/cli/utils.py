@@ -21,8 +21,8 @@
 #     https://www.nipreps.org/community/licensing/
 #
 
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable
 
 import click
 
@@ -37,12 +37,12 @@ def force_output(f: Callable) -> Callable:
 
     Parameters
     ----------
-    f : :obj:`Callable`
+    f : :obj:`~collections.abc.Callable`
         The function to be wrapped with the Click option.
 
     Returns
     -------
-    :obj:`Callable`
+    :obj:`~collections.abc.Callable`
         The decorated function with the ``--force / -f`` flag.
     """
 
@@ -60,14 +60,14 @@ def verify_output_path(path: Path, overwrite: bool = False):
 
     Verifies whether a path exists (if a file) or whether it is not empty
     (if a directory) it; raise an error if it exists/not empty and ``overwrite``
-    is ``False``.
+    is :obj:`False`.
 
     Parameters
     ----------
-    path : :obj:`Path`
+    path : :obj:`~pathlib.Path`
         Filename.
     overwrite : :obj:`bool`
-        ``True`` to allow overwriting the file/writing to a non-empty directory.
+        :obj:`True` to allow overwriting the file/writing to a non-empty directory.
     """
 
     if path.is_file() and not overwrite:

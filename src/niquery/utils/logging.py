@@ -54,9 +54,9 @@ def configure_logging(dirname: Path, filename: str) -> None:
 
     Parameters
     ----------
-    dirname : :obj:`Path`
+    dirname : :obj:`~pathlib.Path`
         Directory where to save the logfile.
-    filename : :obj:`Path`
+    filename : :obj:`~pathlib.Path`
         Filename. Will be appended to the package name to create the log
         filename.
     """

@@ -47,14 +47,14 @@ def filter_species_datasets(df: pd.DataFrame, species: str | list) -> pd.Series:
 
     Parameters
     ----------
-    df : :obj:`~pd.DataFrame`
+    df : :obj:`~pandas.DataFrame`
         Dataset records.
     species : :obj:`str` or :obj:`list`
         Species to consider (case-insensitive).
 
     Returns
     -------
-    :obj:`~pd.Series`
+    :obj:`~pandas.Series`
         Mask of relevant datasets.
     """
 
@@ -72,14 +72,14 @@ def filter_modality_datasets(df: pd.DataFrame, modality: str | list) -> pd.Serie
 
     Parameters
     ----------
-    df : :obj:`~pd.DataFrame`
+    df : :obj:`~pandas.DataFrame`
         Dataset records.
     modality : :obj:`str` or :obj:`list`
         Modalities to consider (case-insensitive).
 
     Returns
     -------
-    :obj:`~pd.Series`
+    :obj:`~pandas.Series`
         Mask of relevant datasets.
     """
 
@@ -102,7 +102,7 @@ def filter_nonrelevant_datasets(
 
     Parameters
     ----------
-    df : :obj:`~pd.DataFrame`
+    df : :obj:`~pandas.DataFrame`
         Dataset records.
     species : :obj:`str` or :obj:`list`
         Species to consider (case-insensitive).
@@ -111,7 +111,7 @@ def filter_nonrelevant_datasets(
 
     Returns
     -------
-    :obj:`~pd.DataFrame`
+    :obj:`~pandas.DataFrame`
         Relevant dataset records.
 
     See Also
@@ -149,7 +149,7 @@ def filter_modality_records(fname: str, sep: str, suffix: str | list) -> pd.Data
 
     Returns
     -------
-    :obj:`~pd.DataFrame`
+    :obj:`~pandas.DataFrame`
         Modality file records.
     """
 
@@ -220,7 +220,7 @@ def filter_on_timepoint_count(
 
     Parameters
     ----------
-    df : :obj:`~pd.DataFrame`
+    df : :obj:`~pandas.DataFrame`
         BOLD run information.
     min_timepoints : :obj:`int`
         Minimum number of time points.
@@ -229,7 +229,7 @@ def filter_on_timepoint_count(
 
     Returns
     -------
-    :obj:`~pd.DataFrame`
+    :obj:`~pandas.DataFrame`
         Filtered BOLD runs.
     """
 
@@ -247,7 +247,7 @@ def filter_on_run_contribution(df: pd.DataFrame, contrib_thr: int, seed: int) ->
 
     Parameters
     ----------
-    df : :obj:`~pd.DataFrame`
+    df : :obj:`~pandas.DataFrame`
         BOLD run information.
     contrib_thr : :obj:`int`
         Contribution threshold in terms of number of runs.
@@ -256,7 +256,7 @@ def filter_on_run_contribution(df: pd.DataFrame, contrib_thr: int, seed: int) ->
 
     Returns
     -------
-    :obj:`~pd.DataFrame`
+    :obj:`~pandas.DataFrame`
         Filtered BOLD runs.
     """
 
@@ -295,7 +295,7 @@ def filter_runs(
 
     Parameters
     ----------
-    df : :obj:`~pd.DataFrame`
+    df : :obj:`~pandas.DataFrame`
         BOLD run information.
     contrib_thr : :obj:`int`
         Contribution threshold in terms of number of runs.
@@ -308,7 +308,7 @@ def filter_runs(
 
     Returns
     -------
-    :obj:`~pd.DataFrame`
+    :obj:`~pandas.DataFrame`
         Filtered BOLD runs.
 
     See Also
@@ -346,7 +346,7 @@ def identify_relevant_runs(
 
     Parameters
     ----------
-    df : :obj:`~pd.DataFrame`
+    df : :obj:`~pandas.DataFrame`
         BOLD run information.
     contrib_thr : :obj:`int`
         Contribution threshold in terms of the number of runs a dataset can
@@ -360,7 +360,7 @@ def identify_relevant_runs(
 
     Returns
     -------
-    :obj:`~pd.DataFrame`
+    :obj:`~pandas.DataFrame`
         Identified relevant BOLD runs.
 
     See Also
