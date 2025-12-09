@@ -12,6 +12,10 @@ research hypothesis testing.
    :target: https://github.com/nipreps/niquery/blob/main/LICENSE
    :alt: License
 
+.. image:: https://img.shields.io/pypi/v/niquery.svg
+   :target: https://pypi.python.org/pypi/niquery/
+   :alt: Latest Version
+
 .. image:: https://github.com/nipreps/niquery/actions/workflows/test.yml/badge.svg
    :target: https://github.com/nipreps/niquery/actions/workflows/test.yml
    :alt: Testing
