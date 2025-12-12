@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Running NiQuery" href="running.html"><link rel="prev" title="Installation" href="installation.html">
 
     <!-- Generated with Sphinx 7.4.7 and Furo 2025.09.25 -->
-        <title>How to Use - niquery 25.1.0.dev4 documentation</title>
+        <title>How to Use - niquery 25.1.0.dev6 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=acfd86a5" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
@@ -162,7 +162,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">niquery 25.1.0.dev4 documentation</div></a>
+      <a href="index.html"><div class="brand">niquery 25.1.0.dev6 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -183,14 +183,14 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
     <span class="sidebar-brand-text">niquery</span>
-    <span id="version-slug" class="sidebar-brand-text">25.1.0.dev4</span>
+    <span id="version-slug" class="sidebar-brand-text">25.1.0.dev6</span>
 </a>
 
 <!-- Versions dropdown -->
 <div id="version-menu" class="version-tree">
   <ul>
   <li class="toctree-l1 has-children">
-  <span class="sidebar-brand-text">25.1.0.dev4</span>
+  <span class="sidebar-brand-text">25.1.0.dev6</span>
   <input class="toctree-checkbox" id="toctree-checkbox-v" name="toctree-checkbox-v" role="switch" type="checkbox">
   <label for="toctree-checkbox-v"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label>
   <ul id="v-tags"></ul>
@@ -304,7 +304,13 @@ can be found at the <a class="reference external" href="https://docs.openneuro.o
 </pre></div>
 </div>
 <p><strong>Collect</strong>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">niquery</span> <span class="n">collect</span> <span class="n">openneuro_datasets</span><span class="o">.</span><span class="n">tsv</span> <span class="o">./</span><span class="n">dataset_files</span> <span class="o">--</span><span class="n">species</span> <span class="n">human</span> <span class="o">--</span><span class="n">modality</span> <span class="n">bold</span> <span class="o">--</span><span class="n">modality</span> <span class="n">fmri</span> <span class="o">--</span><span class="n">modality</span> <span class="n">mri</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">niquery</span> <span class="n">collect</span> \
+  <span class="n">openneuro_datasets</span><span class="o">.</span><span class="n">tsv</span> \
+  <span class="o">./</span><span class="n">dataset_files</span> \
+  <span class="o">--</span><span class="n">species</span> <span class="n">human</span> \
+  <span class="o">--</span><span class="n">modality</span> <span class="n">bold</span> \
+  <span class="o">--</span><span class="n">modality</span> <span class="n">fmri</span> \
+  <span class="o">--</span><span class="n">modality</span> <span class="n">mri</span>
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">collect</span></code> traverses all trees for all datasets of interest in order
@@ -315,7 +321,8 @@ take several hours.</p>
 </pre></div>
 </div>
 <p><strong>Select</strong>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">niquery</span> <span class="n">select</span> <span class="o">./</span><span class="n">dataset_features</span> <span class="n">selected_openneuro_datasets</span><span class="o">.</span><span class="n">tsv</span> <span class="mi">1234</span> \
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">niquery</span> <span class="n">select</span> \
+  <span class="o">./</span><span class="n">dataset_features</span> <span class="n">selected_openneuro_datasets</span><span class="o">.</span><span class="n">tsv</span> <span class="mi">1234</span> \
   <span class="o">--</span><span class="n">total</span><span class="o">-</span><span class="n">runs</span> <span class="mi">4000</span> \
   <span class="o">--</span><span class="n">contr</span><span class="o">-</span><span class="n">fraction</span> <span class="mf">0.05</span> \
   <span class="o">--</span><span class="nb">min</span><span class="o">-</span><span class="n">timepoints</span> <span class="mi">300</span> \
@@ -377,7 +384,7 @@ take several hours.</p>
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=2325f478"></script>
+</div><script src="_static/documentation_options.js?v=b0a5fa0b"></script>
     <script src="_static/doctools.js?v=9a2dae69"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>
