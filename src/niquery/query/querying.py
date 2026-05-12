@@ -314,7 +314,7 @@ def query_snapshot_files(
     """
 
     query = """
-    query getSnapshotFiles($datasetId: ID!, $tag: String!, $tree: String) {
+    query getSnapshotFiles($datasetId: ID!, $tag: String!, $tree: ID) {
       snapshot(datasetId: $datasetId, tag: $tag) {
         files(tree: $tree) {
           id
