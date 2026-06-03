@@ -1,7 +1,0 @@
-niquery.utils.logging module
-============================
-
-.. automodule:: niquery.utils.logging
-   :members:
-   :show-inheritance:
-   :undoc-members:

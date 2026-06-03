@@ -1,7 +1,0 @@
-niquery.utils.attributes module
-===============================
-
-.. automodule:: niquery.utils.attributes
-   :members:
-   :show-inheritance:
-   :undoc-members:

@@ -1,7 +1,0 @@
-niquery.utils.decorators module
-===============================
-
-.. automodule:: niquery.utils.decorators
-   :members:
-   :show-inheritance:
-   :undoc-members:

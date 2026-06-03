@@ -1,7 +1,0 @@
-niquery.analysis.filtering module
-=================================
-
-.. automodule:: niquery.analysis.filtering
-   :members:
-   :show-inheritance:
-   :undoc-members:

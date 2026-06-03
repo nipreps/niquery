@@ -1,7 +1,0 @@
-niquery.utils.optpckg module
-============================
-
-.. automodule:: niquery.utils.optpckg
-   :members:
-   :show-inheritance:
-   :undoc-members:

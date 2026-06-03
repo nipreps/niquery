@@ -1,7 +1,0 @@
-niquery.data.fetching module
-============================
-
-.. automodule:: niquery.data.fetching
-   :members:
-   :show-inheritance:
-   :undoc-members:
