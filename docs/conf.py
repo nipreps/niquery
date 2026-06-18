@@ -125,7 +125,7 @@ html_css_files = [
 
 # Sphinx extension for BibTeX style citations.
 # https://github.com/mcmtroffaes/sphinxcontrib-bibtex
-bibtex_bibfiles: list[str] = []
+bibtex_bibfiles = ["references.bib"]
 # bibtex_default_style = 'plain'
 
 # -- Options for HTMLHelp output ---------------------------------------------
