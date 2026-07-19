@@ -1,0 +1,16 @@
+niquery.cli package
+===================
+
+.. automodule:: niquery.cli
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   niquery.cli.run
+   niquery.cli.utils

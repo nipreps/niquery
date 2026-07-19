@@ -1,0 +1,17 @@
+niquery.data package
+====================
+
+.. automodule:: niquery.data
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   niquery.data.fetching
+   niquery.data.remotes
+   niquery.data.utils

@@ -1,0 +1,15 @@
+niquery.query package
+=====================
+
+.. automodule:: niquery.query
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   niquery.query.querying

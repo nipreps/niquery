@@ -1,0 +1,7 @@
+niquery.io.utils module
+=======================
+
+.. automodule:: niquery.io.utils
+   :members:
+   :show-inheritance:
+   :undoc-members:

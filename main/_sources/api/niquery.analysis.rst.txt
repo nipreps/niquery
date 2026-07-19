@@ -1,0 +1,16 @@
+niquery.analysis package
+========================
+
+.. automodule:: niquery.analysis
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   niquery.analysis.featuring
+   niquery.analysis.filtering

@@ -1,0 +1,7 @@
+niquery.query.querying module
+=============================
+
+.. automodule:: niquery.query.querying
+   :members:
+   :show-inheritance:
+   :undoc-members:
