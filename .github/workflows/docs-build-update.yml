@@ -65,7 +65,7 @@ jobs:
         rm -rf ${MAJOR_MINOR}
         cp -r $HOME/docs/$CURBRANCH $PWD/${MAJOR_MINOR}
         git add ${MAJOR_MINOR}
-        python -c "from pathlib import Path; import json; f=Path('versions.json'); d=json.loads(f.read_text()); d['tags'].append(\"${MAJOR_MINOR}\"); d['tags'] = list(sorted(set(d['tags']))); f.write_text(json.dumps(d, indent=4)); print('Updated versions.json')"
+        python -c "from pathlib import Path; import json; f=Path('versions.json'); d=json.loads(f.read_text()) if f.exists() else {'tags': []}; d['tags'].append(\"${MAJOR_MINOR}\"); d['tags'] = list(sorted(set(d['tags']))); f.write_text(json.dumps(d, indent=4)); print('Updated versions.json')"
         git add versions.json
         git commit -m "rel(${CURBRANCH}): Update docs of ${MAJOR_MINOR} series" || true
         git push
