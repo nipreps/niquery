@@ -273,7 +273,13 @@ def post_with_retry(
                 logging.warning(f"502 Bad Gateway, retrying in {wait:.1f}s...")
                 time.sleep(wait)
             else:
-                logging.warning(f"HTTPError for {url}: {e}")
+                body = ""
+                if e.response is not None:
+                    try:
+                        body = e.response.text
+                    except Exception:
+                        body = "<unavailable>"
+                logging.warning(f"HTTPError for {url}: {e}; body={body}")
                 return None
         except requests.exceptions.SSLError as e:
             logging.warning(f"SSLError for {url}: {e}")
