@@ -341,7 +341,7 @@ def select(
     total_runs,
     contr_fraction,
     min_timepoints,
-    max_timepoints,
+    max_timepoints,  # These will also need to have aNone default value to generalize
     force,
 ) -> None:  ## Generalize name or approach to allow other modalities (open issue)
     """Select relevant BOLD runs based on constraints.
