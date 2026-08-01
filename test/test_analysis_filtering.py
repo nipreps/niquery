@@ -175,3 +175,53 @@ def test_identify_relevant_runs():
     # Same expectations as filter_runs; ordering may differ due to shuffling
     assert len(out) == 3
     assert set(out[VOLS]) == {150, 200, 300}
+
+
+def test_filter_on_run_contribution_insufficient_runs():
+    # Only 1 run for ds1, contrib_thr=2
+    df = pd.DataFrame(
+        [
+            {REMOTE: "myremote", DATASETID: "ds1", VOLS: 100},
+        ]
+    )
+    out = filter_on_run_contribution(df, contrib_thr=2, seed=42)
+    # Should return the only available run
+    assert len(out) == 1
+    assert (out[DATASETID] == "ds1").sum() == 1
+
+
+def test_filter_on_run_contribution_no_runs():
+    # Empty DataFrame
+    df = pd.DataFrame(columns=[REMOTE, DATASETID, VOLS])
+    out = filter_on_run_contribution(df, contrib_thr=2, seed=42)
+    assert out.empty
+
+
+def test_filter_on_timepoint_count_all_filtered():
+    df = pd.DataFrame([{VOLS: 100}, {VOLS: 200}])
+    out = filter_on_timepoint_count(df, min_timepoints=300, max_timepoints=400)
+    # No rows have VOLS in [300, 400]
+    assert out.empty
+
+
+def test_filter_runs_contrib_thr_greater_than_available():
+    df = pd.DataFrame(
+        [
+            {REMOTE: "myremote", DATASETID: "ds1", VOLS: 120},
+            {REMOTE: "myremote", DATASETID: "ds2", VOLS: 130},
+        ]
+    )
+    # contrib_thr = 3, but only 1 run per dataset
+    out = filter_runs(df, contrib_thr=3, min_timepoints=100, max_timepoints=200, seed=123)
+    assert len(out) == 2  # Both are kept, nothing is dropped
+
+
+def test_filter_runs_all_filtered_by_timepoints():
+    df = pd.DataFrame(
+        [
+            {REMOTE: "myremote", DATASETID: "ds1", VOLS: 50},
+            {REMOTE: "myremote", DATASETID: "ds2", VOLS: 60},
+        ]
+    )
+    out = filter_runs(df, contrib_thr=1, min_timepoints=100, max_timepoints=200, seed=123)
+    assert out.empty
