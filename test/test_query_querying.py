@@ -248,6 +248,284 @@ def test_post_with_retry_other_exceptions(monkeypatch, exc_factory, caplog):
     assert any("for http://example" in rec.message for rec in caplog.records)
 
 
+def test_query_snapshot_files_posts_expected_gql_contract(monkeypatch):
+    captured = {}
+
+    def mock_post_with_retry(url, headers, payload, retries=5, backoff=1.5):
+        captured["url"] = url
+        captured["headers"] = headers
+        captured["payload"] = payload
+        return DummyResponse(
+            200,
+            {
+                "data": {
+                    "snapshot": {
+                        "files": [{"id": "f1", "filename": "a.nii.gz", "directory": False}]
+                    }
+                }
+            },
+        )
+
+    monkeypatch.setattr("niquery.query.querying.post_with_retry", mock_post_with_retry)
+
+    files = query_snapshot_files(
+        "https://openneuro.org/crn/graphql",
+        "ds000001",
+        "1.0.0",
+        tree="tree-node-id",
+    )
+
+    assert files == [{"id": "f1", "filename": "a.nii.gz", "directory": False}]
+
+    payload = captured["payload"]
+    query = " ".join(payload["query"].split())
+    variables = payload["variables"]
+
+    assert query.startswith("query getSnapshotFiles(")
+    assert "snapshot(datasetId: $datasetId, tag: $tag)" in query
+    assert "files(tree: $tree)" in query
+
+    for token in ("$datasetId:", "$tag:", "$tree:"):
+        assert token in query
+
+    for field in ("id", "filename", "size", "directory", "annexed", "urls"):
+        assert f" {field} " in f" {query} "
+
+    assert set(variables) == {"datasetId", "tag", "tree"}
+    assert variables["datasetId"] == "ds000001"
+    assert variables["tag"] == "1.0.0"
+    assert variables["tree"] == "tree-node-id"
+
+
+def test_query_snapshot_files_matches_openneuro_schema_contract(monkeypatch):
+    captured = {}
+
+    # Contract snapshot derived from OpenNeuro GraphQL introspection
+    # (https://openneuro.org/crn/graphql), reduced to the fields used by
+    # query_snapshot_files().
+    contract = {
+        "snapshot": {
+            "args": {
+                "datasetId": "ID!",
+                "tag": "String!",
+            }
+        },
+        "files": {
+            "args": {
+                "tree": "String",
+            },
+            "fields": [
+                "id",
+                "filename",
+                "size",
+                "directory",
+                "annexed",
+                "urls",
+            ],
+        },
+    }
+
+    def mock_post_with_retry(url, headers, payload, retries=5, backoff=1.5):
+        captured["url"] = url
+        captured["headers"] = headers
+        captured["payload"] = payload
+        return DummyResponse(
+            200,
+            {
+                "data": {
+                    "snapshot": {
+                        "files": [{"id": "f1", "filename": "a.nii.gz", "directory": False}]
+                    }
+                }
+            },
+        )
+
+    monkeypatch.setattr("niquery.query.querying.post_with_retry", mock_post_with_retry)
+
+    files = query_snapshot_files(
+        "https://openneuro.org/crn/graphql",
+        "ds000001",
+        "1.0.0",
+        tree="db72baeb3665a309db35d6ef649e117eb45a8a87",
+    )
+
+    assert files == [{"id": "f1", "filename": "a.nii.gz", "directory": False}]
+
+    query = " ".join(captured["payload"]["query"].split())
+    variables = captured["payload"]["variables"]
+
+    assert f"$datasetId: {contract['snapshot']['args']['datasetId']}" in query
+    assert f"$tag: {contract['snapshot']['args']['tag']}" in query
+    assert f"$tree: {contract['files']['args']['tree']}" in query
+
+    assert "snapshot(datasetId: $datasetId, tag: $tag)" in query
+    assert "files(tree: $tree)" in query
+
+    for field in contract["files"]["fields"]:
+        assert field in query
+
+    assert variables == {
+        "datasetId": "ds000001",
+        "tag": "1.0.0",
+        "tree": "db72baeb3665a309db35d6ef649e117eb45a8a87",
+    }
+
+
+def test_query_snapshot_files_matches_openneuro_live_schema(monkeypatch):
+    import requests
+
+    captured = {}
+
+    def unwrap_type(type_node):
+        parts = []
+        node = type_node
+        while node:
+            kind = node.get("kind")
+            name = node.get("name")
+            if kind == "NON_NULL":
+                parts.append("!")
+                node = node.get("ofType")
+            elif kind == "LIST":
+                parts.append("[")
+                node = node.get("ofType")
+                if node and node.get("name"):
+                    parts.append(node["name"])
+                break
+            else:
+                if name:
+                    parts.append(name)
+                node = node.get("ofType")
+        if parts and parts[0] == "!":
+            parts = parts[1:] + ["!"]
+        return "".join(parts)
+
+    introspection_query = """
+    {
+      queryType: __type(name: "Query") {
+        fields {
+          name
+          args {
+            name
+            type {
+              kind
+              name
+              ofType {
+                kind
+                name
+                ofType {
+                  kind
+                  name
+                  ofType {
+                    kind
+                    name
+                  }
+                }
+              }
+            }
+          }
+          type {
+            kind
+            name
+            ofType {
+              kind
+              name
+              ofType {
+                kind
+                name
+              }
+            }
+          }
+        }
+      }
+      snapshotType: __type(name: "Snapshot") {
+        fields {
+          name
+          args {
+            name
+            type {
+              kind
+              name
+              ofType {
+                kind
+                name
+                ofType {
+                  kind
+                  name
+                  ofType {
+                    kind
+                    name
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    """
+
+    response = requests.post(
+        "https://openneuro.org/crn/graphql",
+        headers={"Content-Type": "application/json"},
+        json={"query": introspection_query},
+        timeout=30,
+    )
+    response.raise_for_status()
+    payload = response.json()
+    assert "errors" not in payload, payload.get("errors")
+
+    query_fields = payload["data"]["queryType"]["fields"]
+    snapshot_fields = payload["data"]["snapshotType"]["fields"]
+
+    snapshot_field = next(field for field in query_fields if field["name"] == "snapshot")
+    files_field = next(field for field in snapshot_fields if field["name"] == "files")
+
+    snapshot_args = {arg["name"]: unwrap_type(arg["type"]) for arg in snapshot_field["args"]}
+    files_args = {arg["name"]: unwrap_type(arg["type"]) for arg in files_field["args"]}
+
+    def mock_post_with_retry(url, headers, payload, retries=5, backoff=1.5):
+        captured["url"] = url
+        captured["headers"] = headers
+        captured["payload"] = payload
+        return DummyResponse(
+            200,
+            {
+                "data": {
+                    "snapshot": {
+                        "files": [{"id": "f1", "filename": "a.nii.gz", "directory": False}]
+                    }
+                }
+            },
+        )
+
+    monkeypatch.setattr("niquery.query.querying.post_with_retry", mock_post_with_retry)
+
+    files = query_snapshot_files(
+        "https://openneuro.org/crn/graphql",
+        "ds000001",
+        "1.0.0",
+        tree="db72baeb3665a309db35d6ef649e117eb45a8a87",
+    )
+
+    assert files == [{"id": "f1", "filename": "a.nii.gz", "directory": False}]
+
+    query = " ".join(captured["payload"]["query"].split())
+    variables = captured["payload"]["variables"]
+
+    assert f"$datasetId: {snapshot_args['datasetId']}" in query
+    assert f"$tag: {snapshot_args['tag']}" in query
+    assert f"$tree: {files_args['tree']}" in query
+
+    assert "snapshot(datasetId: $datasetId, tag: $tag)" in query
+    assert "files(tree: $tree)" in query
+
+    assert variables == {
+        "datasetId": "ds000001",
+        "tag": "1.0.0",
+        "tree": "db72baeb3665a309db35d6ef649e117eb45a8a87",
+    }
+
+
 def test_query_snapshot_files_response_none(monkeypatch, caplog):
     def mock_post_with_retry(gql_url, headers, payload):
         return None
