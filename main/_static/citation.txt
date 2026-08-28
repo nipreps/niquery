@@ -1,0 +1,6 @@
+Legarreta, J. H., Blair, R. W., Markiewicz, C. J., Rokem, A., Norgaard, M., and
+   Esteban, O. (2026). “NiQuery: Stop searching your neuroimaging datasets.
+   Start testing your hypotheses”. In: 32nd Annual Conference of the Orga-
+   nization for Human Brain Mapping (OHBM). Program #1627. Bordeaux,
+   FR. doi: 10.5281/zenodo.20817576. url: https://doi.org/10.5281/
+   zenodo.20817576.

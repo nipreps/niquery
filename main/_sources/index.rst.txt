@@ -9,5 +9,6 @@ Contents
     installation
     usage
     running
+    citation
     developers
     changes
