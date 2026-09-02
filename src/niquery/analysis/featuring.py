@@ -36,7 +36,16 @@ from botocore.config import Config  # type: ignore
 from tqdm import tqdm
 
 from niquery.data.remotes import BUCKET, REMOTES
-from niquery.utils.attributes import DATASETID, FULLPATH, REMOTE, VOLS
+from niquery.utils.attributes import (
+    DATASETID,
+    FULLPATH,
+    REMOTE,
+    VOLS,
+    VOXEL_ANISOTROPY,
+    VOXEL_SZ_X,
+    VOXEL_SZ_Y,
+    VOXEL_SZ_Z,
+)
 
 NBYTES = 512
 BYTE_RANGE = f"bytes=0-{NBYTES}"
@@ -83,6 +92,18 @@ def get_nii_header_s3(bucket: str, filename: str) -> nb.nifti1.Nifti1Header:
     data = response["Body"].read()
 
     return _get_nii_header_bytes(data)
+
+
+def get_nii_voxelsize_s3(bucket: str, filename: str):
+    """Return the voxel size (pixdim[1:4]) from the NIfTI header on S3."""
+    header = get_nii_header_s3(bucket, filename)
+    return header["pixdim"][1:4]
+
+
+def get_nii_anisotropy_s3(bucket: str, filename: str):
+    """Return the anisotropy ratio (max/min of voxel sizes) from NIfTI header."""
+    voxsz = get_nii_voxelsize_s3(bucket, filename)
+    return float(np.max(voxsz) / np.min(voxsz)) if np.min(voxsz) > 0 else np.nan
 
 
 def get_nii_timepoints_s3(bucket: str, filename: str) -> int:
@@ -188,19 +209,54 @@ def extract_volume_features(files: dict, max_workers: int = 8) -> tuple:
                         str(Path(dataset_id) / Path(rec[FULLPATH])),
                     )
                 ] = (dataset_id, rec)
+                futures[
+                    executor.submit(
+                        get_nii_voxelsize_s3,
+                        REMOTES[rec[REMOTE]][BUCKET],
+                        str(Path(dataset_id) / Path(rec[FULLPATH])),
+                    )
+                ] = (dataset_id, rec, "voxsz")
+                futures[
+                    executor.submit(
+                        get_nii_anisotropy_s3,
+                        REMOTES[rec[REMOTE]][BUCKET],
+                        str(Path(dataset_id) / Path(rec[FULLPATH])),
+                    )
+                ] = (dataset_id, rec, "anisotropy")
 
+        # Collect results, assuming all three futures per file complete
+        temp_results = {}
         for future in tqdm(as_completed(futures), total=len(futures), desc="Extracting features"):
             dataset_id, rec = futures[future]
+            dataset_id, rec, key = futures[future]
             try:
                 n_vols = future.result()
                 rec_vols = rec.copy()
                 rec_vols[VOLS] = n_vols
                 success_results[dataset_id].append(rec_vols)
+
+                value = future.result()
+                rec_id = (dataset_id, rec[FULLPATH])
+                if rec_id not in temp_results:
+                    temp_results[rec_id] = rec.copy()
+                if key == "vols":
+                    temp_results[rec_id][VOLS] = value
+                elif key == "voxsz":
+                    temp_results[rec_id][VOXEL_SZ_X] = value[0]
+                    temp_results[rec_id][VOXEL_SZ_Y] = value[1]
+                    temp_results[rec_id][VOXEL_SZ_Z] = value[2]
+                elif key == "anisotropy":
+                    temp_results[rec_id][VOXEL_ANISOTROPY] = value
+
             except Exception as e:
                 logging.warning(f"Failed to process {dataset_id}:{rec[FULLPATH]}: {e}")
                 failure_results.append(
                     {REMOTE: rec[REMOTE], DATASETID: dataset_id, FULLPATH: rec[FULLPATH]}
                 )
+
+        # Push to final results by dataset
+        for (dataset_id, _), rec_full in temp_results.items():
+            success_results[dataset_id].append(rec_full)
 
     # Sort results before returning
     return {

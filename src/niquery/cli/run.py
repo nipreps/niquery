@@ -333,6 +333,24 @@ def analyze(in_dirname, out_dirname, suffix, force) -> None:
     show_default=True,
     help="Maximum number BOLD timepoints per dataset",
 )
+@click.option(
+    "--max-anisotropy",
+    type=float,
+    default=None,
+    help="Maximum allowed anisotropy ratio (max/min voxel size).",
+)
+@click.option(
+    "--min-voxel-size",
+    type=float,
+    default=None,
+    help="Minimum allowed voxel size (applies to all axes).",
+)
+@click.option(
+    "--max-voxel-size",
+    type=float,
+    default=None,
+    help="Maximum allowed voxel size (applies to all axes).",
+)
 @force_output
 def select(
     in_dirname,
@@ -342,7 +360,10 @@ def select(
     contr_fraction,
     min_timepoints,
     max_timepoints,
-    force,
+    max_anisotropy,
+    min_voxel_size,
+    max_voxel_size,
+    force
 ) -> None:  ## Generalize name or approach to allow other modalities (open issue)
     """Select relevant BOLD runs based on constraints.
 

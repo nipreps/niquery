@@ -29,6 +29,7 @@ from niquery.analysis.filtering import (
     filter_nonrelevant_datasets,
     filter_on_run_contribution,
     filter_on_timepoint_count,
+    filter_on_voxel_size,
     filter_runs,
     filter_species_datasets,
     identify_modality_files,
@@ -123,6 +124,28 @@ def test_identify_modality_files(tmp_path):
 def test_filter_on_timepoint_count():
     df = pd.DataFrame([{VOLS: 100}, {VOLS: 200}, {VOLS: 300}])
     out = filter_on_timepoint_count(df, min_timepoints=150, max_timepoints=300)
+    assert out[VOLS].tolist() == [200, 300]
+
+
+def test_filter_on_voxel_size():
+    df = pd.DataFrame([
+        {VOXEL_SZ_X: 1.0, VOXEL_SZ_Y: 1.0, VOXEL_SZ_Z: 2.0},
+        {VOXEL_SZ_X: 1.0, VOXEL_SZ_Y: 1.0, VOXEL_SZ_Z: 1.25},
+        {VOXEL_SZ_X: 1.0, VOXEL_SZ_Y: 0.8, VOXEL_SZ_Z: 1.25},
+    ])
+    out = filter_on_voxel_size(df, min_voxel_size=150)
+    assert out[VOLS].tolist() == [200, 300]
+    out = filter_on_voxel_size(df, max_voxel_size=300)
+    assert out[VOLS].tolist() == [200, 300]
+    out = filter_on_voxel_size(df, anisotropy=1.0)
+    assert out[VOLS].tolist() == [200, 300]
+    out = filter_on_voxel_size(df, min_voxel_size=150, anisotropy=1.0)
+    assert out[VOLS].tolist() == [200, 300]
+    out = filter_on_voxel_size(df, max_voxel_size=150, anisotropy=1.0)
+    assert out[VOLS].tolist() == [200, 300]
+    out = filter_on_voxel_size(df, min_voxel_size=150, max_voxel_size=150)
+    assert out[VOLS].tolist() == [200, 300]
+    out = filter_on_voxel_size(df, min_voxel_size=150, max_voxel_size=150, anisotropy=1.3)
     assert out[VOLS].tolist() == [200, 300]
 
 

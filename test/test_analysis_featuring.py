@@ -128,6 +128,26 @@ def test_get_nii_timepoints_s3(monkeypatch):
     assert n == 123
 
 
+def test_get_nii_voxelsize_s3(monkeypatch):
+    # Provide valid gzip content (actual content is ignored by mocked nibabel)
+    gz = gzip.compress(b"anybytes")
+    monkeypatch.setattr("niquery.analysis.featuring.s3", DummyS3(gz))
+    monkeypatch.setattr("niquery.analysis.featuring.nb.Nifti1Image", DummyNifti)
+
+    n = get_nii_voxelsize_s3("mybucket", "ds000001/path/file.nii.gz")
+    assert n == 123
+
+
+def test_get_nii_anisotropy_s3(monkeypatch):
+    # Provide valid gzip content (actual content is ignored by mocked nibabel)
+    gz = gzip.compress(b"anybytes")
+    monkeypatch.setattr("niquery.analysis.featuring.s3", DummyS3(gz))
+    monkeypatch.setattr("niquery.analysis.featuring.nb.Nifti1Image", DummyNifti)
+
+    n = get_nii_anisotropy_s3("mybucket", "ds000001/path/file.nii.gz")
+    assert n == 123
+
+
 def test_get_nii_timepoints_url(monkeypatch):
     gz = gzip.compress(b"anybytes")
 
@@ -147,6 +167,44 @@ def test_get_nii_timepoints_url(monkeypatch):
         get_nii_timepoints_url("http://example/missing.nii.gz")
 
 
+def test_get_nii_voxel_size_url(monkeypatch):
+    gz = gzip.compress(b"anybytes")
+
+    def ok_get(url, headers):
+        return DummyResponse(206, content=gz)
+
+    monkeypatch.setattr("niquery.analysis.featuring.requests.get", ok_get)
+    monkeypatch.setattr("niquery.analysis.featuring.nb.Nifti1Image", DummyNifti)
+
+    assert get_nii_voxel_size_url("http://example/file.nii.gz") == 123
+
+    def bad_get(url, headers):
+        return DummyResponse(404, content=b"")
+
+    monkeypatch.setattr("niquery.analysis.featuring.requests.get", bad_get)
+    with pytest.raises(RuntimeError):
+        get_nii_voxel_size_url("http://example/missing.nii.gz")
+
+
+def test_get_nii_anisotropy_url(monkeypatch):
+    gz = gzip.compress(b"anybytes")
+
+    def ok_get(url, headers):
+        return DummyResponse(206, content=gz)
+
+    monkeypatch.setattr("niquery.analysis.featuring.requests.get", ok_get)
+    monkeypatch.setattr("niquery.analysis.featuring.nb.Nifti1Image", DummyNifti)
+
+    assert get_nii_anisotropy_url("http://example/file.nii.gz") == 123
+
+    def bad_get(url, headers):
+        return DummyResponse(404, content=b"")
+
+    monkeypatch.setattr("niquery.analysis.featuring.requests.get", bad_get)
+    with pytest.raises(RuntimeError):
+        get_nii_anisotropy_url("http://example/missing.nii.gz")
+
+
 def test_extract_volume_features(monkeypatch):
     # Prepare input dict: two datasets with small DataFrames
     remote = "openneuro"
@@ -160,25 +218,52 @@ def test_extract_volume_features(monkeypatch):
 
     datasets = {"ds1": df1, "ds2": df2}
 
+    timepoints = 50
+    voxel_sz = [0.8, 1.0, 1.25]
+    anisotropy = 1.5625
+
     def fake_get_nii_timepoints_s3(bucket, path_str):
         # The implementation under test passes Path(dataset_id) / Path(rec[FULLPATH])
         # so we distinguish by dataset id in the path string.
         if "ds1" in path_str:
-            return 50
+            return timepoints
+        raise RuntimeError("Pretending that ds2 was not successful")
+
+    def fake_get_nii_voxel_size_s3(bucket, path_str):
+        # The implementation under test passes Path(dataset_id) / Path(rec[FULLPATH])
+        # so we distinguish by dataset id in the path string.
+        if "ds1" in path_str:
+            return voxel_sz
+        raise RuntimeError("Pretending that ds2 was not successful")
+
+    def fake_get_nii_anisotropy_s3(bucket, path_str):
+        # The implementation under test passes Path(dataset_id) / Path(rec[FULLPATH])
+        # so we distinguish by dataset id in the path string.
+        if "ds1" in path_str:
+            return anisotropy
         raise RuntimeError("Pretending that ds2 was not successful")
 
     monkeypatch.setattr(
         "niquery.analysis.featuring.get_nii_timepoints_s3", fake_get_nii_timepoints_s3
     )
+    monkeypatch.setattr(
+        "niquery.analysis.featuring.get_nii_voxel_size_s3", fake_get_nii_voxel_size_s3
+    )
+    monkeypatch.setattr(
+        "niquery.analysis.featuring.get_nii_anisotropy_s3", fake_get_nii_anisotropy_s3
+    )
 
     success, failures = extract_volume_features(datasets, max_workers=2)
 
+    voxel_sz_attrs = (VOXEL_SZ,X, VOXEL_SZ_Y, VOXEL_SZ_Z)
     # Success contains ds1 with 2 records and VOLS set, and empty ds2
     assert list(success.keys()) == ["ds1", "ds2"]
     assert [rec[FULLPATH] for rec in success["ds1"]] == sorted(
         [r[FULLPATH] for _, r in df1.iterrows()]
     )
-    assert all(rec[VOLS] == 50 for rec in success["ds1"])
+    assert all(rec[VOLS] == timepoints for rec in success["ds1"])
+    assert all(np.allclose(rec[idx], voxel_sz[idx]) for rec in success["ds1"] for idx in range(voxel_sz_attrs))
+    assert all(np.close(rec[ANISOTROPY], anisotropy) for rec in success["ds1"])
     assert success["ds2"] == []
 
     # Failures contain ds2's only record

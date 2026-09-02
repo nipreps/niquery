@@ -43,6 +43,10 @@ from niquery.utils.attributes import (
     TAG,
     URLS,
     VOLS,
+    VOXEL_ANISOTROPY,
+    VOXEL_SZ_X,
+    VOXEL_SZ_Y,
+    VOXEL_SZ_Z,
 )
 
 
@@ -259,6 +263,53 @@ def filter_on_timepoint_count(
     return df[df[VOLS].isin(timepoint_bounds)]
 
 
+def filter_on_voxel_size(
+    df: pd.DataFrame,
+    min_voxel_size: float | None = None,
+    max_voxel_size: float | None = None,
+    max_anisotropy: float | None = None,
+) -> pd.DataFrame:
+    """Filter BOLD runs of datasets that are below or above a given voxel size
+    and anisotropy value.
+
+    Filters BOLD runs whose voxel size (across all three dimensions) is not
+    within the range ``[min_voxel_size, max_voxel_size]`` or above
+    ``max_anisotropy``.
+
+    Parameters
+    ----------
+    df : :obj:`~pandas.DataFrame`
+        BOLD run information.
+    min_voxel_size : :obj:`float`, optional
+        Minimum voxel size.
+    max_voxel_size : :obj:`float`, optional
+        Maximum voxel size.
+    max_anisotropy : :obj:`float`, optional
+        Maximum anisotropy value.
+
+    Returns
+    -------
+    :obj:`~pandas.DataFrame`
+        Filtered BOLD runs.
+    """
+
+    # Ensure the BOLD run has [min, max] voxel size and is below an anisotropy
+    # ratio (inclusive)
+    cols = [VOXEL_SZ_X, VOXEL_SZ_Y, VOXEL_SZ_Z]
+    mask = pd.Series(True, index=df.index)
+
+    if min_voxel_size is not None:
+        mask &= df[cols].ge(min_voxel_size).all(axis=1)
+
+    if max_voxel_size is not None:
+        mask &= df[cols].le(max_voxel_size).all(axis=1)
+
+    if max_anisotropy is not None:
+        mask &= df[VOXEL_ANISOTROPY].le(max_anisotropy)
+
+    return df[mask]
+
+
 def filter_on_run_contribution(df: pd.DataFrame, contrib_thr: int, seed: int) -> pd.DataFrame:
     """Filter BOLD runs of datasets to keep their total contribution under a
     threshold.
@@ -396,3 +447,4 @@ def identify_relevant_runs(
     df = filter_runs(df, contrib_thr, min_timepoints, max_timepoints, seed)
 
     return df
+
